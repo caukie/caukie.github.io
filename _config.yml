@@ -6,11 +6,11 @@
 # 'jekyll serve'. If you change this file, please restart the server process.
 
 # Site settings
-title:  Caukie小屋
+title:  cake918小屋
 subtitle: 数卷禅宗语，几点相思泪。佛曰：觉有情！
 name: cake918 
 email: cake918@126.com
-description: start from here。
+description: start from here.
 keywords: JAVA LIVE
 encoding: "utf-8"
 favicon: favicon.ico 
@@ -67,10 +67,6 @@ menus:
     label: 故事
     target: _self
 
-  -
-    href: /arch.html
-    label: 架构
-    target: _self
 
   -
 
@@ -133,16 +129,6 @@ navs:
 labels:
 
   -
-    href: /payment.html
-    label: 支付     
-    target: _self
-
-  -
-    href: /fastdfs.html
-    label: FastDFS
-    target: _blank
-
-  -
     href: /mongodb.html
     label: MongoDB
     target: _blank
@@ -156,17 +142,6 @@ labels:
     href: /open-source.html
     label: Code  
     target: _blank
-
-  -
-    href: /gitchat.html
-    label: Chat
-    target: _blank
-
-  -
-    href: /geektime.html
-    label: 极客
-    target: _blank
-
 
 # selected articles
 classes:
@@ -203,11 +178,8 @@ side_bar_repo_limit: 6 # Number of repos to show
 
 
 # For about.html. Fell free to create your own!
-skill_software_keywords: [Java, MySQL, Oracle, Design Patterns]
-skill_j2ee_keywords: [Spring, Struct, Hibernet, MyBatis, JSP]
-skill_web_keywords: [HTML, CSS, JS, JQuery, Ajax, NodeJS, ExpressJS, MongoDB, Redis, PHP,  Boostrap]
-skill_mobile_app_keywords: [vuejs, hyhird app]
-
+skill_software_keywords: [Java, MySQL, Design Patterns]
+skill_j2ee_keywords: [Spring, Hibernet, MyBatis]
 
 # ---------------- #
 #      Comments    #
