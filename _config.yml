@@ -167,17 +167,16 @@ comments_provider: gitalk
 # disqus:
 #     username: caukie
 # https://imsun.net/posts/gitment-introduction/
-gitment:
-    owner: caukie
-    repo: blog-comments
-    oauth:
-        client_id: 9df91bee22ece2c5627b
-        client_secret: fefcdd63ea2d514d52d6c49ca7502dd80637fd3e
+# gitment:
+#     owner: caukie
+#     repo: blog-comments
+#     oauth:
+#         client_id: 9df91bee22ece2c5627b
+#         client_secret: fefcdd63ea2d514d52d6c49ca7502dd80637fd3e
 # https://github.com/gitalk/gitalk#install
 gitalk:
     owner: caukie
-    admin: caukie
-    repo: blog-comments
+    repo: caukie.github.io
     clientID: 9df91bee22ece2c5627b
     clientSecret: fefcdd63ea2d514d52d6c49ca7502dd80637fd3e
     id: md5(window.location.pathname)

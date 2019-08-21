@@ -84,13 +84,13 @@
         <script src="/assets/js/gitalk.min.js"></script>
         <script>
         var gitalk = new Gitalk({
-            id: '{{ page.url }}',
+            id: '{{ site.gitalk.id }}',
             clientID: '{{ site.gitalk.clientID }}',
             clientSecret: '{{ site.gitalk.clientSecret }}',
             repo: '{{ site.gitalk.repo }}',
             owner: '{{ site.gitalk.owner }}',
             admin: ['{{ site.gitalk.owner }}'],
-            labels: ['gitment'],
+            labels: ['gitalk'],
             perPage: 50,
         })
         gitalk.render('gitalk-container')
