@@ -1,3 +1,4 @@
+publishDir: "docs"
 baseURL: http://caukie.github.io
 disablePathToLower: true
 languageCode: zh-CN
