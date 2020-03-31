@@ -120,6 +120,44 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title">
+                                    <a href="https://www.yangwenchao.com/post/tech/2020/2018-12-25-wangguan1/" title="严选API网关构建实践" >严选API网关构建实践</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2018年1月24日
+                            </date>
+                            
+                            <div class="post-meta">
+                                <span>|</span>
+                                
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF">技术</a></span>
+                                
+                            </div>
+                            
+                            <div class="post-content">
+                                此处应有背景 近几年微服务架构如日中天，微服务化亦是大势所趋，严选的微服务化改造也已初具规模，基于Sidecar模式的服务网格渐趋稳定，其基本架构如下：（图片引自网络） 数据面部分，Sidecar代理采用nginx，并基于nginx扩展，包括服务发现，负载均衡，健康检查等。其控制面为Consul管理平台。 同时部分sidecar功能，也被嵌入到tomcat容器或第三方Client中，如链路跟踪，流量采样等，其控制面为apolloY配置中心。 关于Sidecar的介绍，没有比原图更直观的了！（图片引自网络） 与此同时，作为微服务架构中不可或缺的组成部分：API Gateway，也就应运而生。
+合适的才是最好的 根据活跃度、语言、支持功能、上手难易等，对开源社区（Tky，MicroGateway，Zuul，Kong等）进行比较分析。 除了网关基本功能之外，我们更关注于性能以及可扩展性，因此倾向于非Java的实现，同时考虑到入门门槛、后续的发展，最终锁定了Kong。 Kong的详细介绍，参考官方文档：https://konghq.com/kong-community-edition/。 Openresty部分，从原理到应用，可参看官方文档。
+一切从源码开始 从官方Fork了当时最新版本0.2.3（截至本文书写时，官方已更新至1.0.0版本），参考编译安装手册，依次安装Openresty，Luarocks，Kong，PostgreSQL。除了LUA环境、Openssl依赖小有波澜，一切进展顺利，首个进程轻松启动。 良好的开始是成功的一半！实践证明，这里只是整个进度条的1%！之后我们优化了Openresty的依赖模块，标准化了环境变量的路径以及应用的安装路径，最终输出了严选API网关的编译安装手册以及自动化脚本。
+大道至简，天下归一 在已有场景下，一个应用节点更新，首先需要到Consul平台进行下线（很nice），而另外还需要SA协助从入口Nginx调整域名的Upstream配置（很简陋）。一者，服务更新的复杂度高，再者，额外依赖了SA的操作。结果就是导致服务更新的笨重！因此，网关引入consul-module，集成Sidecar的服务注册发现功能，之后，不论访问方式如何，业务只需要关心Consul平台的配置即可，简单易行，皆大欢喜。 同时，已有Kong配置，缺少对API的有效标识，在严选Consul架构下，网关对单个Location进行有效的定义：产品名+服务名+接口名，一方面，将无意义的Location进行命名，方便记忆；另一方面，根据定义好的名字，可以快速检索配置。
+物以类聚，分而治之 集群部署隔离 商业版提供了完整的管理平台，对集群、插件、监控等进行管理。而严选环境下，我们也需要根据网络环境、使用场景、入口业务进行集群区分，进而实现资源隔离！ 根据网络环境，目前区分了：测试网关集群，内网网关集群，外网网关集群等； 根据使用场景，目前区分了：出口网关集群，ABTest网关集群，压测网关集群等； 根据入口业务，目前区分了：主站网关集群，活动网关集群，Openapi网关集群等； 如上图所示，实际我们先根据网络环境区分大集群，然后根据业务、场景再细分子集群。
+接口访问隔离  业务接口的访问：  依赖于身份验证插件，进行接口级别的租户信息验证。为此，我们扩充了租户管理，可以配置租户的验证策略，以及租户级别的频控等策略。
+ 管理接口的暴露：  仅支持本地IP访问，且只暴露监控数据的获取接口；
+配置管理隔离 基于严选已有的权限中心，我们结合API网关的配置页面，细化了面向API网关的访问权限。
+ 用户：  可以走openpid进行登录的所有corp账号，创建是需要指定所属的角色；
+ 角色：  可以定制不同角色可见的模块，比如业务方只需要查看监控模块、插件配置，不可进行操作；
+ 群组：  API创建时，需要指定其所属群组，群组下可以添加具体的用户，此时，该用户只能看到该群组下的API配置信息； 如上图所示， 用户 &ndash; 角色 &ndash; API：操作权限控制 用户 &ndash; 群组 &ndash; API：API业务隔离
+战战兢兢，如履薄冰 可维护 作为所有业务的总入口，一旦有风吹草动，那必然是一石激起千层浪！除了服务稳定性，我们把日常的运维工作作为重中之重！
+ 统计报表  多维度实时查看线上流量、响应错误码、响应时间、TCP链接数等，方便第一时间确认问题点。
+ 监控告警  基于实时平台，对异常日志、错误请求进行实时监控。 基于运维平台，对系统基础资源，包括CPU，内存，磁盘等进行实时监控。 一旦出现异常及时告警，目前我们依赖了锦衣卫以及邮件进行相关的告警通知。 由于网关数据流量大，在此仅对异常请求数据进行入库，目前使用Elasticsearch进行存储，方便问题的定位分析。……
+                            </div>
+                            <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2020/2018-12-25-wangguan1/">阅读全文</a></p>
+                        </article>
+                    
+                    
+		    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title">
                                     <a href="https://www.yangwenchao.com/post/tech/2020/2018-01-24-fengkong1/" title="严选风控构建之路 --雄关漫道真如铁" >严选风控构建之路 --雄关漫道真如铁</a>
                                 </h1>
                             </header>
@@ -305,33 +343,6 @@
                         </article>
                     
                     
-		    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title">
-                                    <a href="https://www.yangwenchao.com/post/life/2017/2017-06-23-zhaicao/" title="《我们的路》节选" >《我们的路》节选</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2017年6月23日
-                            </date>
-                            
-                            <div class="post-meta">
-                                <span>|</span>
-                                
-                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
-                                
-                            </div>
-                            
-                            <div class="post-content">
-                                《我们的路》节选
- 一切都无法预先料定。唯一可以掌握的是眼前所见的，手中所拥有的。当你能念书时，你念书就是；当你能做事时，你做事就是；当你能恋爱时，你再去恋爱；当你能结婚时，你再去结婚。环境不许可时，强求不来；时机来临时，放弃不得。这便是一个人应有的生活哲学！
- ——罗兰……
-                            </div>
-                            <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2017/2017-06-23-zhaicao/">阅读全文</a></p>
-                        </article>
-                    
-                    
                     
 
 
@@ -440,7 +451,7 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (1)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (2)</a></li>
     
     <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (48)</a></li>
     
