@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.60.1" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>严选API网关构建实践 | cake918小屋</title>
+    <meta property="og:title" content="严选API网关构建实践 - cake918小屋">
+    <meta property="og:type" content="article">
+        
+    <meta property="article:published_time" content="2018-01-24T00:00:00&#43;08:00">
+        
+        
+    <meta property="article:modified_time" content="2018-01-24T00:00:00&#43;08:00">
+        
+    <meta name="Keywords" content="生活，技术">
+    <meta name="description" content="严选API网关构建实践">
+        
+    <meta name="author" content="">
+    <meta property="og:url" content="https://www.yangwenchao.com/post/tech/2018/2018-12-25-wangguan1/">
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
+
+    <link rel="stylesheet" href="/css/normalize.css">
+    
+        <link rel="stylesheet" href="/css/prism.css">
+    
+    <link rel="stylesheet" href="/css/style.css">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    
+
+
+    
+    
+</head>
+
+<body>
+<header id="header" class="clearfix">
+    <div class="container">
+        <div class="col-group">
+            <div class="site-name ">
+                
+                    <a id="logo" href="https://www.yangwenchao.com">
+                        cake918小屋
+                    </a>
+                
+                <p class="description">数卷禅宗语，几点相思泪！佛曰：觉有情！</p>
+            </div>
+            <div>
+                <nav id="nav-menu" class="clearfix">
+                    <a class="current" href="https://www.yangwenchao.com">首页</a>
+                    
+                </nav>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+<div id="body">
+        
+        
+    <div class="container">
+        <div class="col-group">
+
+            <div class="col-8" id="main">
+                <div class="res-cons">
+                    <article class="post">
+                        <header>
+                            <h1 class="post-title">严选API网关构建实践</h1>
+                        </header>
+                        <date class="post-meta meta-date">
+                            2018年1月24日
+                        </date>
+                        
+                        <div class="post-meta">
+                            <span>|</span>
+                            
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF">技术</a></span>
+                            
+                        </div>
+                        
+                        
+                        
+                        <div class="post-content">
+                            <h3 id="heading">此处应有背景</h3>
+<p>近几年微服务架构如日中天，微服务化亦是大势所趋，严选的微服务化改造也已初具规模，基于Sidecar模式的服务网格渐趋稳定，其基本架构如下：（图片引自网络）
+<img src="/assets/images/2018/tech/wangguan1.png" alt="pic"></p>
+<p>数据面部分，Sidecar代理采用nginx，并基于nginx扩展，包括服务发现，负载均衡，健康检查等。其控制面为Consul管理平台。
+同时部分sidecar功能，也被嵌入到tomcat容器或第三方Client中，如链路跟踪，流量采样等，其控制面为apolloY配置中心。
+关于Sidecar的介绍，没有比原图更直观的了！（图片引自网络）
+<img src="/assets/images/2018/tech/wangguan2.png" alt="pic"></p>
+<p>与此同时，作为微服务架构中不可或缺的组成部分：API Gateway，也就应运而生。</p>
+<h3 id="heading1">合适的才是最好的</h3>
+<p>根据活跃度、语言、支持功能、上手难易等，对开源社区（Tky，MicroGateway，Zuul，Kong等）进行比较分析。
+除了网关基本功能之外，我们更关注于性能以及可扩展性，因此倾向于非Java的实现，同时考虑到入门门槛、后续的发展，最终锁定了Kong。
+Kong的详细介绍，参考官方文档：https://konghq.com/kong-community-edition/。
+Openresty部分，从原理到应用，可参看官方文档。</p>
+<h3 id="heading2">一切从源码开始</h3>
+<p>从官方Fork了当时最新版本0.2.3（截至本文书写时，官方已更新至1.0.0版本），参考编译安装手册，依次安装Openresty，Luarocks，Kong，PostgreSQL。除了LUA环境、Openssl依赖小有波澜，一切进展顺利，首个进程轻松启动。
+良好的开始是成功的一半！实践证明，这里只是整个进度条的1%！之后我们优化了Openresty的依赖模块，标准化了环境变量的路径以及应用的安装路径，最终输出了严选API网关的编译安装手册以及自动化脚本。</p>
+<h3 id="heading3">大道至简，天下归一</h3>
+<p>在已有场景下，一个应用节点更新，首先需要到Consul平台进行下线（很nice），而另外还需要SA协助从入口Nginx调整域名的Upstream配置（很简陋）。一者，服务更新的复杂度高，再者，额外依赖了SA的操作。结果就是导致服务更新的笨重！因此，网关引入consul-module，集成Sidecar的服务注册发现功能，之后，不论访问方式如何，业务只需要关心Consul平台的配置即可，简单易行，皆大欢喜。
+同时，已有Kong配置，缺少对API的有效标识，在严选Consul架构下，网关对单个Location进行有效的定义：产品名+服务名+接口名，一方面，将无意义的Location进行命名，方便记忆；另一方面，根据定义好的名字，可以快速检索配置。</p>
+<h3 id="heading4">物以类聚，分而治之</h3>
+<h4 id="heading5">集群部署隔离</h4>
+<p>商业版提供了完整的管理平台，对集群、插件、监控等进行管理。而严选环境下，我们也需要根据网络环境、使用场景、入口业务进行集群区分，进而实现资源隔离！
+根据网络环境，目前区分了：测试网关集群，内网网关集群，外网网关集群等；
+根据使用场景，目前区分了：出口网关集群，ABTest网关集群，压测网关集群等；
+根据入口业务，目前区分了：主站网关集群，活动网关集群，Openapi网关集群等；
+<img src="/assets/images/2018/tech/wangguan3.png" alt="pic">
+如上图所示，实际我们先根据网络环境区分大集群，然后根据业务、场景再细分子集群。</p>
+<h4 id="heading6">接口访问隔离</h4>
+<ul>
+<li>业务接口的访问：</li>
+</ul>
+<p>依赖于身份验证插件，进行接口级别的租户信息验证。为此，我们扩充了租户管理，可以配置租户的验证策略，以及租户级别的频控等策略。</p>
+<ul>
+<li>管理接口的暴露：</li>
+</ul>
+<p>仅支持本地IP访问，且只暴露监控数据的获取接口；</p>
+<h4 id="heading7">配置管理隔离</h4>
+<p>基于严选已有的权限中心，我们结合API网关的配置页面，细化了面向API网关的访问权限。</p>
+<ul>
+<li>用户：</li>
+</ul>
+<p>可以走openpid进行登录的所有corp账号，创建是需要指定所属的角色；</p>
+<ul>
+<li>角色：</li>
+</ul>
+<p>可以定制不同角色可见的模块，比如业务方只需要查看监控模块、插件配置，不可进行操作；</p>
+<ul>
+<li>群组：</li>
+</ul>
+<p>API创建时，需要指定其所属群组，群组下可以添加具体的用户，此时，该用户只能看到该群组下的API配置信息；
+<img src="/assets/images/2018/tech/wangguan4.png" alt="pic"></p>
+<p>如上图所示，
+用户 &ndash; 角色 &ndash; API：操作权限控制
+用户 &ndash; 群组 &ndash; API：API业务隔离</p>
+<h3 id="heading8">战战兢兢，如履薄冰</h3>
+<h4 id="heading9">可维护</h4>
+<p>作为所有业务的总入口，一旦有风吹草动，那必然是一石激起千层浪！除了服务稳定性，我们把日常的运维工作作为重中之重！</p>
+<ul>
+<li>统计报表</li>
+</ul>
+<p>多维度实时查看线上流量、响应错误码、响应时间、TCP链接数等，方便第一时间确认问题点。</p>
+<ul>
+<li>监控告警</li>
+</ul>
+<p>基于实时平台，对异常日志、错误请求进行实时监控。
+基于运维平台，对系统基础资源，包括CPU，内存，磁盘等进行实时监控。
+一旦出现异常及时告警，目前我们依赖了锦衣卫以及邮件进行相关的告警通知。
+<img src="/assets/images/2018/tech/wangguan5.png" alt="pic">
+由于网关数据流量大，在此仅对异常请求数据进行入库，目前使用Elasticsearch进行存储，方便问题的定位分析。</p>
+<h4 id="heading10">可管控</h4>
+<p>Kong自身的配置方式，没有权限控制，没有历史跟踪，简单粗暴，不适用于生产环境。因此我们再现有配置基础之上，包装了基于Mongodb的配置管理，支持历史版本的回溯，版本回退，版本比较等功能。</p>
+<ul>
+<li>引入工单协同系统</li>
+</ul>
+<p>有效的与其他工单系统配合，实现完整的配置申请、审批、执行、审核等操作，在流程上对配置更新进行把控。</p>
+<ul>
+<li>扩展灰度发布功能</li>
+</ul>
+<p>可以在指定节点运行更新内容，将配置出错的影响降到最低。</p>
+<h3 id="heading11">插件！插件！插件！</h3>
+<p>Kong在Openresty上做的最大贡献，莫过于对插件的规范，插件支持热插拔，以及灵活的动态配置。在此框架下，可以从心所欲，业务心有多大，我们就可以做多大！</p>
+<ul>
+<li>公共插件</li>
+</ul>
+<p>目前扩充了频控插件，路由插件，以及拦截器，请求/响应转换插件等等。</p>
+<ul>
+<li>定制插件</li>
+</ul>
+<p>前期帮助业务定制了加解密插件，超时重试插件，ABTest分流插件等。随着接入业务的扩充，我们将插件开发进行开放，由业务来实现插件，向Serveless迈进了一小步！
+<img src="/assets/images/2018/tech/wangguan6.png" alt="pic"></p>
+<h3 id="heading12">门户虽开，恶人勿近</h3>
+<p>网关作为所有访问的大门，我们在这个大门上装上了扫描器WAF（Web Application Firewall），用于识别是来访者是正常用户请求，还是恶意的攻击。对于恶意的访问，可以提前拒绝，确保应用服务器资源的有效利用。
+WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略的动态配置。</p>
+<ol>
+<li>规则管理</li>
+</ol>
+<p><img src="/assets/images/2018/tech/wangguan7.png" alt="pic">
+如图所示，将规则分成两级进行维护，方便规则的检索、统计等。</p>
+<ol start="2">
+<li>触发策略</li>
+</ol>
+<p>具体触发策略包括拦截、流量二次清洗、蜜罐等等。</p>
+<ol start="3">
+<li>API定制</li>
+</ol>
+<p>API开启WAF插件之后，可以在此进行规则以及触发策略的定制，方便统一的管理。</p>
+<h3 id="just-run">Just Run！</h3>
+<p>至此，终于可以发布我们的第一个线上版本（命名为Yanxuan-Ianus）！然而，要SA每次到线上机从Compile开始，势必会被吐槽至死！</p>
+<ul>
+<li>
+<p>RPM包
+采用RPM包的方式发布，针对不同的环境，制作相应的RPM包，免去线上环境配置修改的烦恼。
+如：首次部署，openresty更新，nginx更新，module更新</p>
+</li>
+<li>
+<p>GIT-CI
+实际操作过程中，频繁的更新包版本，仍会给SA带来不少的麻烦，也降低了部署效率。
+因此，我们额外增加了GIT-CI部署方式，在仅涉及LUA脚本，配置文件的更新时，直接走CI方式发布即可。
+同时，鉴于LUA脚本热加载特性，如果只是更新脚本，则通过Reload方式加载，可以支持实时更新，进一步简化更新流程。
+如：Kong更新，插件更新，配置更新</p>
+</li>
+</ul>
+<p>线上部署发现，PostgreSQL操作均通过线上节点执行，而线上节点暴露给外部，存在安全风险，因此针对线上DB的操作，额外引入pgproxy服务，该模块只支持对PostgreSQL的操作，且只允许管理平台访问，进而保证DB的安全性。最终，</p>
+<ul>
+<li>网关对外依赖如下：</li>
+</ul>
+<p><img src="/assets/images/2018/tech/wangguan8.png" alt="pic"></p>
+<ul>
+<li>网关部署方式如下：</li>
+</ul>
+<p><img src="/assets/images/2018/tech/wangguan9.png" alt="pic"></p>
+<ul>
+<li>网关管理平台功能如下：
+<img src="/assets/images/2018/tech/wangguan10.png" alt="pic"></li>
+</ul>
+<h3 id="-or-">骡子 or 马</h3>
+<p>系统的轮子转起来之后，接下来我们就开始往里面添加各种需要加工的材料，也就是将各个业务的流量导入到网关，让网关真正开始做事。
+整个流量导入的过程是相当漫长的，从七月份到如今，我们把测试环境、内网环境的域名访问的90%流量均导入到了网关，同时外网环境的主要入口的流量也导入到网关。
+在整个导流的过程中，顺便将业务管理进行了规范化，统一注册到了Consul，在此，非常感谢各个业务的密切配合。
+而双十一期间日最高访问量达到了15亿，最高访问量为400w/min。系统表现稳定。同时，由于网关的动态配置特性，结合Consul的标签，很好的完成了服务分流功能。</p>
+<p>基于严选API网关，我们搭建了面向不同业务的集群：</p>
+<ul>
+<li>
+<p>开放平台：
+作为OpenApi的接入层，规范接口访问，支持租户管理，身份验证，数据加密，流量控制，访问审计等。</p>
+</li>
+<li>
+<p>门户网关：
+替换现有的门户网关，方便门户新增业务门户入口。</p>
+</li>
+<li>
+<p>出口网关
+当前提供给供应商使用，统一各个业务对外访问的出口，并可定制除业务功能外的扩展功能，如超时重试机制。</p>
+</li>
+<li>
+<p>活动网关
+替换活动自建的Nginx，活动本身特性决定，业务访问会有较多的静态页面，将页面直接缓存到网关侧，提升性能。</p>
+</li>
+<li>
+<p>活动ABTEST平台
+利用网关的分流及灰度策略，做为Ab压测的入口，实现AB分流功能。</p>
+</li>
+</ul>
+<h3 id="heading13">此处应有总结</h3>
+<p>目前严选API网关的部署架构已基本成形，而流量的导入工作仍在持续进行。随着业务的不断状态，网关的形态也会不断分化。
+但是，这一切不会止步于网关！一方面，我们会引入更多的网关形态，另一方面，基于网关的基础设施，我们希望产出更多其他业务设施！</p>
+
+                        </div>
+
+                        
+
+
+                        
+
+<div class="post-archive">
+    <h2>See Also</h2>
+    <ul class="listing">
+        
+        <li><a href="/post/tech/2018/2018-01-24-fengkong1/">严选风控构建之路 --雄关漫道真如铁</a></li>
+        
+        <li><a href="/post/life/2018/2018-01-01-wuti1/">无念</a></li>
+        
+        <li><a href="/post/life/2018/2018-01-01-xiaomeng/">晓梦</a></li>
+        
+        <li><a href="/post/life/2018/2018-01-01-diandao/">颠道</a></li>
+        
+        <li><a href="/post/life/2017/2017-12-29-wuxin/">无心</a></li>
+        
+    </ul>
+</div>
+
+
+                        <div class="post-meta meta-tags">
+                            
+                            <ul class="clearfix">
+                                
+                                <li><a href="https://www.yangwenchao.com/tags/%E6%8A%80%E6%9C%AF">技术</a></li>
+                                
+                            </ul>
+                            
+                        </div>
+                    </article>
+                    
+    
+
+    
+    
+                </div>
+            </div>
+            <div id="secondary">
+    <section class="widget">
+        <form id="search" action="//www.google.com/search" method="get" accept-charset="utf-8" target="_blank" _lpchecked="1">
+      
+      <input type="text" name="q" maxlength="20" placeholder="Search">
+      <input type="hidden" name="sitesearch" value="https://www.yangwenchao.com">
+      <button type="submit" class="submit icon-search"></button>
+</form>
+    </section>
+    
+    <section class="widget">
+        <h3 class="widget-title">最近文章</h3>
+<ul class="widget-list">
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-03-31-guiyu/" title="鬼语">鬼语</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-03-29-shishuoxinyu/" title="世说新语其一">世说新语其一</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-03-21-caigentan/" title="菜根谭">菜根谭</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-03-08-tangzhiyan/" title="唐摭言">唐摭言</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-01-20-wubing/" title="无病">无病</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-01-13-wuti/" title="无题">无题</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-01-13-wuti1/" title="无题">无题</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/" title="Nginx的URL编解码处理机制">Nginx的URL编解码处理机制</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti/" title="无题">无题</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti1/" title="昨日重现">昨日重现</a>
+    </li>
+    
+</ul>
+    </section>
+
+    
+
+    <section class="widget">
+        <h3 class="widget-title">分类</h3>
+<ul class="widget-list">
+    
+    <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (4)</a></li>
+    
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (48)</a></li>
+    
+</ul>
+    </section>
+
+    <section class="widget">
+        <h3 class="widget-title">标签</h3>
+<div class="tagcloud">
+    
+    <a href="https://www.yangwenchao.com/tags/%E5%81%B6%E6%84%9F/">偶感</a>
+    
+    <a href="https://www.yangwenchao.com/tags/%E6%8A%80%E6%9C%AF/">技术</a>
+    
+    <a href="https://www.yangwenchao.com/tags/%E7%94%9F%E6%B4%BB/">生活</a>
+    
+    <a href="https://www.yangwenchao.com/tags/%E7%AC%94%E8%AE%B0/">笔记</a>
+    
+</div>
+    </section>
+
+    
+<section class="widget">
+    <h3 class="widget-title">友情链接</h3>
+    <ul class="widget-list">
+        
+        <li>
+            <a target="_blank" href="https://xiaodongliu.com/" title="晓东的博客">晓东的博客</a>
+        </li>
+        
+        <li>
+            <a target="_blank" href="https://www.eyeori.xyz" title="皆绮的博客">皆绮的博客</a>
+        </li>
+        
+    </ul>
+</section>
+
+
+    <section class="widget">
+        <h3 class="widget-title">其它</h3>
+        <ul class="widget-list">
+            <li><a href="https://www.yangwenchao.com/index.xml">文章 RSS</a></li>
+        </ul>
+    </section>
+</div>
+        </div>
+    </div>
+</div>
+<footer id="footer">
+    <div class="container">
+        &copy; 2020 <a href="https://www.yangwenchao.com">cake918小屋 By </a>.
+        Powered by <a rel="nofollow noreferer noopener" href="https://gohugo.io" target="_blank">Hugo</a>.
+        <a href="https://www.flysnow.org/" target="_blank">Theme</a> based on <a href="https://github.com/rujews/maupassant-hugo" target="_blank">maupassant</a>.
+        
+        <a href="http://beian.miit.gov.cn" target="_blank">备案号：浙ICP备19050836号</a>.
+    </div>
+</footer>
+
+
+    
+    <script type="text/javascript">
+        
+        (function () {
+            $("pre code").parent().addClass("line-numbers")
+        }());
+
+        window.MathJax = {
+            tex2jax: {
+                inlineMath: [['$', '$']],
+                processEscapes: true
+                }
+            };
+    </script>
+    <script type="text/javascript" src="/js/prism.js" async="true"></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML' async></script>
+
+
+<a id="rocket" href="#top"></a>
+<script type="text/javascript" src="/js/totop.js?v=0.0.0" async=""></script>
+
+
+
+
+
+
+<script type="text/javascript">
+(function(){
+	if (typeof self === 'undefined' || !self.Prism || !self.document) {
+		return;
+	}
+
+	if (!Prism.plugins.toolbar) {
+		console.warn('Copy to Clipboard plugin loaded before Toolbar plugin.');
+
+		return;
+	}
+
+	var ClipboardJS = window.ClipboardJS || undefined;
+
+	if (!ClipboardJS && typeof require === 'function') {
+		ClipboardJS = require('clipboard');
+	}
+
+	var callbacks = [];
+
+	if (!ClipboardJS) {
+		var script = document.createElement('script');
+		var head = document.querySelector('head');
+
+		script.onload = function() {
+			ClipboardJS = window.ClipboardJS;
+
+			if (ClipboardJS) {
+				while (callbacks.length) {
+					callbacks.pop()();
+				}
+			}
+		};
+
+		script.src = 'https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.0/clipboard.min.js';
+		head.appendChild(script);
+	}
+
+	Prism.plugins.toolbar.registerButton('copy-to-clipboard', function (env) {
+		var linkCopy = document.createElement('button');
+		linkCopy.textContent = '复制代码';
+
+		if (!ClipboardJS) {
+			callbacks.push(registerClipboard);
+		} else {
+			registerClipboard();
+		}
+
+		return linkCopy;
+
+		function registerClipboard() {
+			var clip = new ClipboardJS(linkCopy, {
+				'text': function () {
+					return env.code;
+				}
+			});
+
+			clip.on('success', function() {
+				linkCopy.textContent = '复制成功!';
+
+				resetText();
+			});
+			clip.on('error', function () {
+				linkCopy.textContent = '按 Ctrl+C 复制';
+
+				resetText();
+			});
+		}
+
+		function resetText() {
+			setTimeout(function () {
+				linkCopy.textContent = '复制代码';
+			}, 5000);
+		}
+	});
+})();
+
+</script>
+</body>
+</html>

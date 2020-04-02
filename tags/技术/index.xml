@@ -6,17 +6,49 @@
     <description>Recent content in 技术 on cake918小屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Wed, 24 Jan 2018 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Thu, 09 Jan 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://www.yangwenchao.com/tags/%E6%8A%80%E6%9C%AF/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
+      <title>Nginx的URL编解码处理机制</title>
+      <link>https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/</link>
+      <pubDate>Thu, 09 Jan 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/</guid>
+      <description>背景： 业务请求：http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%e5%95%a5%e5%91%a2.pdf响应失败，异常码400，且后端服务未收到该请求。
+初步分析链路为： client &amp;ndash;&amp;gt; gw1 &amp;ndash;&amp;gt; node &amp;ndash;&amp;gt; gw2 &amp;ndash;&amp;gt; ingress &amp;ndash;&amp;gt; service。
+排查：  一、经过逐级日志排查，实际是ingress侧抛出了error；此处由于ingress日志输出不完善，浪费部分时间 报错信息为：HPE_INVWALID_URL ！ 二. 经验证，为PATH中包含了未做URLENCODE的中文字符导致该异常！ 三. 对整个链路传输过程进行追踪，  1，分别对gw1，node，gw2的输入输出，发现node输出是正确编码的，而gw2收到的是解码后的数据； 2，链路修正：client &amp;ndash;&amp;gt;gw1 &amp;ndash;&amp;gt; node &amp;ndash;&amp;gt; consul-nginx &amp;ndash;&amp;gt; gw2 &amp;ndash;&amp;gt; ingress &amp;ndash;&amp;gt; service；则可以确定问题出现在 consul-nginx 这一环节，经过直接请求测试，也证明了这一点。    根因分析 上图为consul-nginx中，对应请求的location配置，其中PATH部分被$2正则替换！
+参考官方文档： 对官网说明进行分析，请求URL被中转到后端服务的场景如下：
+ 1.当proxy_pass配置的是一个URI（形如：Host+/xxx），则location匹配到的部分URI（_normalized_之后做匹配），会被替换为指令中的/xxx（可以只是根路径：/）。（如官方示例：外部请求为：/name/yyy； &amp;ndash;&amp;gt; 后端请求为：/remote/yyy） 2.当proxy_pass指令后配置的仅仅为HOST：1）如果直接处理原始请求：则传递到后端服务的就是外部传入的原始URI（如官方示例：外部请求为：/some/path/yyy； &amp;ndash;&amp;gt; 后端请求为：/some/path/yyy）；2）如中间修改了URI：则传递到后端服务是被_normalized_的请求URI。 3.当location中指定了正则进行匹配，则proxy_pass中不能只指定URI，否则无法确定替换策略，加载失败；注意：URI之后包含/$2 或 /$query_string等变量，则仍然可以正常替换 4.如果URI被rewrite修改，则proxy_pass中指定的URI被忽略，直接将修改后的完整的URI传递到后端服务； 5.如果proxy_pass中使用了变量，如$request_uri，那么被传入到后端服务的内容使用原始的请求URI内容替换。  备注：  在1.1.12版本之前，proxy_pass中不指定URI时，会直接向后透传原生的URI，而不是修改后的URI； websocket的代理从1.3.13版本开始支持，且需要特殊配置。  补充说明： URI 参考nginx中uri变量的说明：
+ 仅仅为PATH部分，不包含 ? 及 querystring； // 会被替换为 /； 会做urldecode； 中间过程可以修改该值；  request_uri 就是外部传入的原生URI，没有经过任何转义等操作；</description>
+    </item>
+    
+    <item>
+      <title>严选风控进阶之路-吹尽狂沙始到金</title>
+      <link>https://www.yangwenchao.com/post/tech/2019/2019-01-07-fengkong2/</link>
+      <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2019/2019-01-07-fengkong2/</guid>
+      <description>逝者如斯，风控进阶之途期年已至，回首风控构建之路犹在昨日，而垂髫之童稚，渐已长成及冠之少年矣。途中经历之种种，权记与此，以饷同好，只可概其要，不能陈其细，还望各位海涵。 构建完成之初，其规模篇秩如下： 观彼时所言：
+其一，风控之业务与日俱增！不囿于订单、积分之长期业务，亦有抽奖、营销之短期活动；不限于严选，更旁及有钱、邮箱等产品。
+其二，刷子之脑洞与时俱进！随业务形态之千变万化，刷子面目亦奇巧精怪。而今有专业的算法、数据分析团队，索其蛛丝马迹，标其善恶美丑。
+除此之外，风控系统自求鼎革，浴火以重生，脱胎以换骨，聊举数例：
+薄框架以求部署之简  原风控平台分平台层与代理层，期代理层之灵动，平台层之稳定。然实践之时，版本频更，平台难以得其定；规则佶屈，代理难以成其动。故化繁为简，合代理与平台而为一，得部署之简便。而代理之灵动，则由规则配置框架取而代之。 建变量以求对接之便  纳业务传参于变量平台，规则配置之时，只需简单勾选操作即可。 如图所示，所有变量均在变量平台进行管理。（在此之前，均在wiki中维护，变量使用时，需要人工检索）  另对模型输出之标签，融入变量平台之内，与业务传参一统。标签者，画其像，肖其形，机器学习模型建设之果，而业务识别之本也。 变规则以求响应之速  原规则引擎，仅支持简单频率规则配置。为引入机器学习，全倚Groovy脚本之灵活，而赖开发之辛劳，又有如衣棉絮行于荆棘之中，步步维艰。因而建规则配置框架，丰条件变量，简规则配置，便产品操作。 上图为配置框架的页面，而原始内容则如下图：（配置框架搭建之前，皆由人肉编写） 另合多阶段规则为统一规则链，兼容线上仿真，多规则并驾而行，得运维之便，达运行之速。 如上图，更新前，规则所处阶段固化，无法动态调整。而线上回归独立在此规则链外，单独维护。
+如上图，更新后，所有规则统一管理，通过调整优先级来控制执行时机。另通过增加规则回归标示，对规则进行线上实时验证。
+增模型以求识别之准  组建专业之机器学习团队，取大数据平台之利，做多维度、长链路分析，出多类型、高精度模型，供业务规则以为用。而机器学习结果与风控平台对接之法：一者，以JAR包提供实时接口访问计算风险；再者，模型计算嵌入用户操作的各个阶段，结果统一以标签方式，存入标签库。
+目前已经训练上线了20多个模型，用到的算法也包罗了逻辑回归、随机森林、SVM、GDBT、LSTM、TextCNN、Bert、图计算、社区发现等！
+聚数据以求证据之全  原有订单等业务数据存储有猛犸，Hbase，redis等，数据分散，且常有缺失，不便证据检索，不便人工判别，因此将各方业务数据均实时汇总流入到ES，统一存储，并利用ES检索之特性，快速支持产品多维度检索之需要，目前已支持有近三十个参数的检索排序等。
+理平台以求产品之美  已有前端展示完全由开发设计，面向开发操作，缺少易用性，美观性等思考。因此对展示的内容进行梳理分类：删除过期操作，合并重复逻辑，分拆必要功能。  千淘万漉虽辛苦，吹尽狂沙始到金！风控平台一直在业务的锤炼下砥砺前行，我们仍然在进阶的路上！</description>
+    </item>
+    
+    <item>
       <title>严选API网关构建实践</title>
-      <link>https://www.yangwenchao.com/post/tech/2020/2018-12-25-wangguan1/</link>
+      <link>https://www.yangwenchao.com/post/tech/2018/2018-12-25-wangguan1/</link>
       <pubDate>Wed, 24 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.yangwenchao.com/post/tech/2020/2018-12-25-wangguan1/</guid>
+      <guid>https://www.yangwenchao.com/post/tech/2018/2018-12-25-wangguan1/</guid>
       <description>此处应有背景 近几年微服务架构如日中天，微服务化亦是大势所趋，严选的微服务化改造也已初具规模，基于Sidecar模式的服务网格渐趋稳定，其基本架构如下：（图片引自网络） 数据面部分，Sidecar代理采用nginx，并基于nginx扩展，包括服务发现，负载均衡，健康检查等。其控制面为Consul管理平台。 同时部分sidecar功能，也被嵌入到tomcat容器或第三方Client中，如链路跟踪，流量采样等，其控制面为apolloY配置中心。 关于Sidecar的介绍，没有比原图更直观的了！（图片引自网络） 与此同时，作为微服务架构中不可或缺的组成部分：API Gateway，也就应运而生。
 合适的才是最好的 根据活跃度、语言、支持功能、上手难易等，对开源社区（Tky，MicroGateway，Zuul，Kong等）进行比较分析。 除了网关基本功能之外，我们更关注于性能以及可扩展性，因此倾向于非Java的实现，同时考虑到入门门槛、后续的发展，最终锁定了Kong。 Kong的详细介绍，参考官方文档：https://konghq.com/kong-community-edition/。 Openresty部分，从原理到应用，可参看官方文档。
 一切从源码开始 从官方Fork了当时最新版本0.2.3（截至本文书写时，官方已更新至1.0.0版本），参考编译安装手册，依次安装Openresty，Luarocks，Kong，PostgreSQL。除了LUA环境、Openssl依赖小有波澜，一切进展顺利，首个进程轻松启动。 良好的开始是成功的一半！实践证明，这里只是整个进度条的1%！之后我们优化了Openresty的依赖模块，标准化了环境变量的路径以及应用的安装路径，最终输出了严选API网关的编译安装手册以及自动化脚本。
@@ -35,10 +67,10 @@
     
     <item>
       <title>严选风控构建之路 --雄关漫道真如铁</title>
-      <link>https://www.yangwenchao.com/post/tech/2020/2018-01-24-fengkong1/</link>
+      <link>https://www.yangwenchao.com/post/tech/2018/2018-01-24-fengkong1/</link>
       <pubDate>Wed, 24 Jan 2018 00:00:00 +0000</pubDate>
       
-      <guid>https://www.yangwenchao.com/post/tech/2020/2018-01-24-fengkong1/</guid>
+      <guid>https://www.yangwenchao.com/post/tech/2018/2018-01-24-fengkong1/</guid>
       <description>本文旨在对严选风控平台搭建的具体实现历程做更详细的说明。
 回想五月初，还在跟财务的妹子们聊的不亦乐乎，突然就被拉回到了一堆糙汉子中间，世界暗淡无光。也就在此时，我听到了“风控”，之后便一直与之纠缠不清，不能释怀，书记递给了我一份python代码，捧过这卷风控奥义，我仿佛看见了上帝。其实，还有一个图，是这样的 WTF，这是什么玩意儿！看到书记狡黠的微笑，我明白了，这个坑有点大，这个锅有点重，这条路很漫长！
  第一个念想，看看外面有没有的借鉴（抄袭）！京东、美团、爱奇艺、携程&amp;hellip;&amp;hellip; 都感觉能抄，但其实什么也抄不到，业界的说法基本类似，画的图也基本雷同，我艰难的抉择并复制了几个图，一个月后，我看到的仍然就是那几个图，他们静静的躺在我的doc里面。感觉风控很简单，这几张图就包含了所有，感觉风控很复杂，我仍然不知该从何处下手！恩，没错，他们的图，大概是下面这样子的， 此时，我再次拾起了书记的那份python代码，虽然看上去很挫，但是很实用，反复把玩，总归有个可以下手的地方。一番努力（其实一天足够了），python变成了java，感觉趁手了许多。但是，它仍旧只能躺在代码仓库里。几天后，炬少走过来跟我说，我这里有个数据平台叫Flink，很好用，实时计算的，你可以试试哦！我也就信了，后来伴随着数据平台的N次迁移改造，我也明白过来，我不就是那只小白鼠么！当然，感谢炬少，风控的demo版，好歹在数据平台的demo版上跑起来了。风控的晨曦已经足够迷人，我们的0.1版也正式扬帆起航。对，就是下面这样子的， 之后，我又重新翻起了doc那几张图，“规则引擎”，“计数中心”，“配置中心”&amp;hellip;&amp;hellip;一个一个模块渐渐浮出水面，清晰异常，只需按图索骥，各个击破。规则引擎的选择，仅仅根据官方说明，以及各个论坛上只言片语的介绍，只能是一脸茫然，干脆选取最方便上手的drools进行实施，目前看来运行稳定，性能也足够。虽然事后有看到说其性能不行等等论调，但实践证明，只要适合自己的业务场景需求，那就是最好的。当然，在经历双十一之后，暴露出drools的灵活性不尽如人意，进而我们又引入了另一个业界常用的groovy作为补充，双剑合璧，也就形成了现在的规则系统，取drools的模板化做频率规则，取groovy的动态化做定制策略，两者相辅相成。
