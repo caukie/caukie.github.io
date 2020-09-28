@@ -6,10 +6,40 @@
     <description>Recent content in 技术 on cake918小屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Thu, 09 Jan 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 13 Sep 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>网易严选API网关演进</title>
+      <link>https://www.yangwenchao.com/post/tech/2020/2020-09-13-apigateway/</link>
+      <pubDate>Sun, 13 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2020/2020-09-13-apigateway/</guid>
+      <description>网易严选API网关演进</description>
+    </item>
+    
+    <item>
+      <title>PostgreSql优化思路</title>
+      <link>https://www.yangwenchao.com/post/tech/2020/2020-08-04-pgsqloptimise/</link>
+      <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2020/2020-08-04-pgsqloptimise/</guid>
+      <description>背景 yanxuan-ianus网关使用kong进行架构，而kong的DB支持两种：postgresql及cassandra。
+实际落地时，选取了postgresql。（选型原因：1，两个DB均无严选应用场景，DBA无相关经验，需开发自行运维；2，对严选网关应用场景而言，两者性能优劣差别不大）
+演进阶段 基础功能  单点部署db，支持正常的db操作；（8C，16G）  集群分表  根据大集群进行表隔离；  主从复制  新增从节点，实时备份主节点数据，保证存储数据不丢失；  读写分离  通过增加多个从节点，并且将读操作分摊到从节点上，缓减主节点的读写压力；  应用优化  将原来的每小时过期，全量拉取，优化为永不失效；  配置优化  随着集群增加，调整max_connection配置； 当前最大连接数1500，MEM占70%，CPU达60%，已经达到系统瓶颈，此时部分节点会因为取不到连接而更新不够及时；  应用优化  将全量数据拉取，限定到子集群维度的事件更新和拉取，减少数据更新量以及并发节点数； 数据加载优化，基于分页拉取； 发布方式优化，不进行并行发布；  连接优化  需引入pgbouncer，使用连接池管理；  高可用支持  当前从节点仅仅做了数据备份，实际故障时，还无法进行自动切换。引入pgpool，对故障迁移等进行支持；  关键配置  shared_buffers：使用默认值128MB work_mem：使用默认值4MB wal_buffers：使用默认值4MB max_connections：1500 superuser_reserved_connections：使用默认值3  慢请求优化 EXPLAIN命令 执行explain (query text)或explain (buffers true, analyze true, verbose true) (query text)命令，查看SQL的执行计划（注意，前者不会实际执行SQL，后者会实际执行而且能得到详细的执行信息），对其中的Table Scan涉及的表，建立索引。
+explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch from created_at)*1000)::bigint as created_at, &amp;quot;config&amp;quot;, &amp;quot;id&amp;quot;, &amp;quot;name&amp;quot;, &amp;quot;cluster&amp;quot;, &amp;quot;enabled&amp;quot;, &amp;quot;consumer_id&amp;quot;, &amp;quot;api_id&amp;quot;, &amp;quot;group_id&amp;quot; FROM plugins; explain (analyze,verbose,costs,buffers,timing,summary) SELECT &amp;quot;enabled&amp;quot;, (extract(epoch from created_at)*1000)::bigint as created_at, &amp;quot;config&amp;quot;, &amp;quot;id&amp;quot;, &amp;quot;group_id&amp;quot;, &amp;quot;name&amp;quot;, &amp;quot;api_id&amp;quot;, &amp;quot;consumer_id&amp;quot; FROM plugins; 调整pgsql的log statement输出 2019-11-21 16:24:16.</description>
+    </item>
+    
+    <item>
+      <title>Kong路由匹配策略</title>
+      <link>https://www.yangwenchao.com/post/tech/2020/2020-05-08-kongmatch/</link>
+      <pubDate>Fri, 08 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2020/2020-05-08-kongmatch/</guid>
+      <description>API匹配流程：find_api  1，检查是否需要提取method参数进行匹配（openapi逻辑）； 2，直接获取历史匹配缓存数据； 3，检查host，uri，method分别是否存在匹配项，进行打标； 4，根据打标，获取实际的API配置列表进行匹配，精度由细到粗（host+uri+method &amp;gt; host+uri &amp;gt; host+method &amp;gt; method + uri &amp;gt; host &amp;gt; uri &amp;gt; method）  4.1 对匹配的API列表进行reduce；（含义：提取优先匹配项（从host，uri，method三者各自匹配列表中，取出条目最少的一组），提取完整API列表项） 4.2 从优先匹配项中进行匹配； 4.3 优先匹配失败，从完整API列表项中匹配； 4.4 如果仍然匹配失败，则从次级精度API信息列表中重新匹配；（重复4.1-4.4流程）    当前请求匹配流程：  1，host，uri，method三者均有匹配项，因此三个都被打标； 2，在host+uri+method 匹配时，优先匹配项取到了：yanuxan.actfoward.default（即命中了uri的匹配列表，其中只有一项数据） 3，对优先匹配项进行匹配时，实际host不匹配，退化为从完整API列表项中进行匹配； 4，实际在完整API列表匹配时，依次匹配，返回首个匹配项；（==问题点：该列表没有对path长度做排序，由于数组中activity.act.default顺序在yanxuan.act.forward之前，导致被提前匹配并返回！==）  处理  删除无效的API配置；（==治标不治本，后续仍然存在匹配错误的风险==）  结论    删除无效路由；    目前官方也未做优化，先保持现状，通过配置阶段补充校验进行规避。    </description>
+    </item>
     
     <item>
       <title>Nginx的URL编解码处理机制</title>
@@ -23,6 +53,49 @@
 参考官方文档： 对官网说明进行分析，请求URL被中转到后端服务的场景如下：
  1.当proxy_pass配置的是一个URI（形如：Host+/xxx），则location匹配到的部分URI（_normalized_之后做匹配），会被替换为指令中的/xxx（可以只是根路径：/）。（如官方示例：外部请求为：/name/yyy； &amp;ndash;&amp;gt; 后端请求为：/remote/yyy） 2.当proxy_pass指令后配置的仅仅为HOST：1）如果直接处理原始请求：则传递到后端服务的就是外部传入的原始URI（如官方示例：外部请求为：/some/path/yyy； &amp;ndash;&amp;gt; 后端请求为：/some/path/yyy）；2）如中间修改了URI：则传递到后端服务是被_normalized_的请求URI。 3.当location中指定了正则进行匹配，则proxy_pass中不能只指定URI，否则无法确定替换策略，加载失败；注意：URI之后包含/$2 或 /$query_string等变量，则仍然可以正常替换 4.如果URI被rewrite修改，则proxy_pass中指定的URI被忽略，直接将修改后的完整的URI传递到后端服务； 5.如果proxy_pass中使用了变量，如$request_uri，那么被传入到后端服务的内容使用原始的请求URI内容替换。  备注：  在1.1.12版本之前，proxy_pass中不指定URI时，会直接向后透传原生的URI，而不是修改后的URI； websocket的代理从1.3.13版本开始支持，且需要特殊配置。  补充说明： URI 参考nginx中uri变量的说明：
  仅仅为PATH部分，不包含 ? 及 querystring； // 会被替换为 /； 会做urldecode； 中间过程可以修改该值；  request_uri 就是外部传入的原生URI，没有经过任何转义等操作；</description>
+    </item>
+    
+    <item>
+      <title>Nginx 重传机制</title>
+      <link>https://www.yangwenchao.com/post/tech/2019/2019-12-25-nginxretry/</link>
+      <pubDate>Wed, 25 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2019/2019-12-25-nginxretry/</guid>
+      <description>重试机制 会对指定的错误进行请求重试。其中， - 默认是指对==error==和==timeout==重试； - 在不指定==non_idempotent==时，知会对GET等幂等操作进行重试； - 可以通过==off==关闭重试机制！
+实际这里还有proxy_next_upstream_timeout，proxy_next_upstream_tries可进行更精细的控制。具体可参考Nginx官网-proxy；
+异常检测 这里可以通过server的参数，检测上游节点的有效性，其中，
+- max_fails:在特定时间区间内（fail_timeout），跟上游通信失败的次数(==连续==)，进而作为识别上游服务异常的依据，默认情况下为==1==！设置为==0==时，则关闭检测功能，认为后端永久有效；具体失败的场景，由proxy_next_upstream配置决定； - fail_timeout:1，指定通信失败计数的时间窗口；2，指定上游服务被剔除后的静默时长。
+其他具体信息可以参考Nginx官网-uptream和[Nginx官网-healthcheck。
+扩展 官网的文档也值得反复研究，目前只是这个功能涉及的少数相关配置，而nginx本身有非常丰富的功能，有必要进行更全面的科普，进而提升nginx的应用能力以及问题的定位效率！</description>
+    </item>
+    
+    <item>
+      <title>Tomcat RemoteIP分析</title>
+      <link>https://www.yangwenchao.com/post/tech/2019/2019-12-06-tomcatremoteip/</link>
+      <pubDate>Fri, 06 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2019/2019-12-06-tomcatremoteip/</guid>
+      <description>背景 日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！
+在实际业务中，遇到XFF头无法取到，但是实际RemoteAddr又能正常获取到客户端的情形！
+分析   具体表现
+ tomcat access日志可以正常输出XFF头，说明该请求头是正常传入的； 应用调用httpRequest.getHeader(&amp;ldquo;X-Forwarded-For&amp;rdquo;)，返回内容为空；    疑点
+ tomcat对header做了处理； spring对header做了处理；    tomcat分析  1，查看server.xml，有如下配置：  &amp;lt;Valve className=&amp;quot;org.apache.catalina.valves.RemoteIpValve&amp;quot; remoteIpHeader=&amp;quot;X-Forwarded-For&amp;quot; protocolHeader=&amp;quot;X-Forwarded-Proto&amp;quot; protocolHeaderHttpsValue=&amp;quot;https&amp;quot;/&amp;gt;   2，查看tomcat文档：
+https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIpValve.html 其中提到会对remoteIpHeader中，命中了internal proxies的IP，进行swallow！ 根据配置此处remoteIpHeader，就是X-Forwarded-For！
+  3， 进一步查看源码：
+ 1，此处先对remoteip进行查找（==remoteIpHeader中首个非internal，非trusted的IP==），并更新至remoteAddr； 2，将剩余的remoteIpHeader中的IP进行重新构建，并更新至remoteIpHeader。 至此可以明确，一旦增加了RemoteIpValve配置，则同时会对RemoteAddr，X-Forwarded-For头产生影响。同时，对其他的header和属性也会有影响，具体影响的内容可以参考官方文档。    spring分析 尚未遇到该问题，暂且做记录。
+综述 IP的传递本身是一个比较基础的功能项，业务感知度不高，但是Nginx，Tomcat，Spring中都会有专门的模块进行分析处理。
+需要前期进行规范统一，否则容易导致IP的误取，误判！
+而实际业务使用过程中，很多是不知道底层具体实现，而采取了巧合编程，一旦出现问题，则会一头雾水！在此简略说明之。</description>
+    </item>
+    
+    <item>
+      <title>Nginx RealIP分析</title>
+      <link>https://www.yangwenchao.com/post/tech/2019/2019-10-08-nginxrealip/</link>
+      <pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/tech/2019/2019-10-08-nginxrealip/</guid>
+      <description>nginx官方文档对remote_addr的描述，仅仅简单的提到这是client ip！
+官方文档说明， nginx.conf配置：</description>
     </item>
     
     <item>

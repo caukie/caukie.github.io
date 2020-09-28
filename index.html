@@ -65,6 +65,31 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title">
+                                    <a href="https://www.yangwenchao.com/post/tech/2020/2020-09-13-apigateway/" title="网易严选API网关演进" >网易严选API网关演进</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2020年9月13日
+                            </date>
+                            
+                            <div class="post-meta">
+                                <span>|</span>
+                                
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF">技术</a></span>
+                                
+                            </div>
+                            
+                            <div class="post-content">
+                                网易严选API网关演进……
+                            </div>
+                            <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2020/2020-09-13-apigateway/">阅读全文</a></p>
+                        </article>
+                    
+                    
+		    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title">
                                     <a href="https://www.yangwenchao.com/post/life/2020/2020-09-12-guobailu/" title="过白露" >过白露</a>
                                 </h1>
                             </header>
@@ -164,6 +189,34 @@
 八年奋战，披星月，濡晨露，芒鞋针脚疏，鲜衣成葛布。揽镜自顾，幸有青丝密如初！ 韶华春暮，血尤热，情如故，旧交同走马，知己两三无。清茶一壶，重整行装赴征途！……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-08-06-bazhounian/">阅读全文</a></p>
+                        </article>
+                    
+                    
+		    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title">
+                                    <a href="https://www.yangwenchao.com/post/tech/2020/2020-08-04-pgsqloptimise/" title="PostgreSql优化思路" >PostgreSql优化思路</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2020年8月4日
+                            </date>
+                            
+                            <div class="post-meta">
+                                <span>|</span>
+                                
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF">技术</a></span>
+                                
+                            </div>
+                            
+                            <div class="post-content">
+                                背景 yanxuan-ianus网关使用kong进行架构，而kong的DB支持两种：postgresql及cassandra。
+实际落地时，选取了postgresql。（选型原因：1，两个DB均无严选应用场景，DBA无相关经验，需开发自行运维；2，对严选网关应用场景而言，两者性能优劣差别不大）
+演进阶段 基础功能  单点部署db，支持正常的db操作；（8C，16G）  集群分表  根据大集群进行表隔离；  主从复制  新增从节点，实时备份主节点数据，保证存储数据不丢失；  读写分离  通过增加多个从节点，并且将读操作分摊到从节点上，缓减主节点的读写压力；  应用优化  将原来的每小时过期，全量拉取，优化为永不失效；  配置优化  随着集群增加，调整max_connection配置； 当前最大连接数1500，MEM占70%，CPU达60%，已经达到系统瓶颈，此时部分节点会因为取不到连接而更新不够及时；  应用优化  将全量数据拉取，限定到子集群维度的事件更新和拉取，减少数据更新量以及并发节点数； 数据加载优化，基于分页拉取； 发布方式优化，不进行并行发布；  连接优化  需引入pgbouncer，使用连接池管理；  高可用支持  当前从节点仅仅做了数据备份，实际故障时，还无法进行自动切换。引入pgpool，对故障迁移等进行支持；  关键配置  shared_buffers：使用默认值128MB work_mem：使用默认值4MB wal_buffers：使用默认值4MB max_connections：1500 superuser_reserved_connections：使用默认值3  慢请求优化 EXPLAIN命令 执行explain (query text)或explain (buffers true, analyze true, verbose true) (query text)命令，查看SQL的执行计划（注意，前者不会实际执行SQL，后者会实际执行而且能得到详细的执行信息），对其中的Table Scan涉及的表，建立索引。
+explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;name&quot;, &quot;cluster&quot;, &quot;enabled&quot;, &quot;consumer_id&quot;, &quot;api_id&quot;, &quot;group_id&quot; FROM plugins; explain (analyze,verbose,costs,buffers,timing,summary) SELECT &quot;enabled&quot;, (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;group_id&quot;, &quot;name&quot;, &quot;api_id&quot;, &quot;consumer_id&quot; FROM plugins; 调整pgsql的log statement输出 2019-11-21 16:24:16.……
+                            </div>
+                            <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2020/2020-08-04-pgsqloptimise/">阅读全文</a></p>
                         </article>
                     
                     
@@ -298,60 +351,6 @@
                         </article>
                     
                     
-		    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title">
-                                    <a href="https://www.yangwenchao.com/post/life/2020/2020-06-26-wuti/" title="无题" >无题</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年6月26日
-                            </date>
-                            
-                            <div class="post-meta">
-                                <span>|</span>
-                                
-                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
-                                
-                            </div>
-                            
-                            <div class="post-content">
-                                无题一
-大厦巍峨兮无所栖， 通衢寥廓兮何处行！ 十载羁旅仍是客， 斗室为家自应羞。 莫要强梁争日月， 不若归去卧林丘。
-无题二 夜梦漠北射神雕， 心思南海钩巨鳌。 宝剑蚀尽匣挨蠹， 髀间生肉腹贴膘。
-仰首白发为君消， 附身黄吻共垂髫。 倚门莫羡少年游， 且上东坡砺锸锹。……
-                            </div>
-                            <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-06-26-wuti/">阅读全文</a></p>
-                        </article>
-                    
-                    
-		    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title">
-                                    <a href="https://www.yangwenchao.com/post/life/2020/2020-06-25-rongzaisuibi/" title="容斋随笔" >容斋随笔</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2020年6月25日
-                            </date>
-                            
-                            <div class="post-meta">
-                                <span>|</span>
-                                
-                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
-                                
-                            </div>
-                            
-                            <div class="post-content">
-                                容斋随笔 南宋洪迈所著，“可以稽典故，可以广见闻，可以正讹误，可以膏笔端，实为儒生进学之地！”
-一、雅句妙词  覆酱瓿 嬉笑之怒，甚于裂眦，长歌之哀，过于恸哭！ 《列子》：焉知天地之表，不有大天地者乎？——古人眼界若此！ 《戒石铭》：尔俸尔禄，民脂民膏，下民易虐，上天难欺！ 捧漏瓮以沃焦釜 嗜脐弗及 冠虽敝必加于首，履虽新必贯于足。 可不监兹 公鼎侯碑，志燧表阡 黾勉受之 昼尔于茅，宵而索綯 聊纪于此 蠢动含灵，皆有佛性 蚕作茧，蛛结网，蜂累房，燕营巢，蚁筑垤（die2），螟蛉祝子 李斯：人之贤不肖，譬如鼠矣，在所自处耳！ 窃国柄，覆践祚，倾庙宇 所监不远，视尔所代 玉石杂糅，薰犹同器 血流漂杵 倒屣相迎 窃慕高义，得趋末尘 高甍巨栋，连阡亘陌 决流偃草：势如破竹之状  二、生言僻字  兖（yan3） 瓿（bu2） 憧（chong1 摇曳不定） 幢（chuang2 影子摇晃） 陬（zou1） 贲（ben1） 殳（shu1）：兵器 芟（shan1）：除草 籴（di2） 驵（zang3） 帑（tang3） 畀（bi4） 絺（chi1） 綌（xi4） 斁（du4） 红踯躅：映山红 愍（min3） 赍（ji1） 罴（pi2） 谌（chen2） 肜（rong2） 鍪（mou2） 缵（zuan2） 裒（pou2）：集中 颛（zhuan1） 燠（yu4）：热 燔（fan2）：燔，焚，燎，煽，焰，灼，烤，炖，烧， 捐，弃，掷，抛，畀，蠲，摒，拂，除 逃，遁，窜，匿 罹，遇，逢，遭 圉（yu3）：养马之地 髽（zhua1）： 怿（yi4）：高兴 赍（ji1）：捧 遗，贶，馈，赠，赐，赏 藏获：奴婢 豳（bin1） 诒（yi4）：欺骗 荥（ying2） 綦（qi2） 歙（xi1，she4） 絷（zhi2）：捆绑 侔（nou2）：待，相比 閼（yan1） 湜（shi2） 敻（xuan4） 忮（zhi4）：嫉妒 掾（yuan4） 谶（chen4） 旒（liu2） 鞫（ju1） 麀（you1） 愔（yin1） 慝（te4）：罪恶 谮（zen4）：诬陷 憯（can3）：同惨 僭（jian4）：僭越 觌（di2）：见 郴（chen1） 蕲（qi2） 蓟（ji4） 郢（ying3） 裒（pou2）：裒敛 矧（shen3）：况且 虺（hui3）： 碓（dui4） 奭（shi4） 狎（xia2） 賾（ze2） 奸，邪，佞， 欺，骗，诈，诬，罔，谗，瞒，谤，侮，辱，绐，渎 谄，媚，谀，谮，谗，诋 恣，妄，纵，沉，悖，逆，亵， 病，疾，疽，痈， 饧（tang2）：糖？ 妪，媪，翁，叟，老朽，老夫 践祚，登掖，过阙，趋墀 掊（pou2）：聚敛 修，缮，葺 恤，恩，加，嘉，祐，立， 赦，免，除， 除，授，擢，遣，举 蒙， 犯，叩，觊，侵，巡，掠，衅，陷，覆，攻，夺，劫，乱 驱，平，扫，荡，破，靖，守，卫，除，翦除，御，伐，退，却，克，锄，拒， 免冠，徒跣（xian3） 覃霈：大雨，恩泽 俟，待，等，俾（bi2），迨 裨（bi4）：裨益 裨将（pi2） 怠，疲，衰 繇（yao2）：由 溱洧（zhen1,wei3） 玢（bin1）  三、故典旧闻  厕上衔刀： 养虎遗患： 刀锯余人：宦官 国士无双：韩信 岁旦饮酒：小者得岁，先饮酒贺之，老者失时，故后饮酒。（即岁酒，屠苏酒） 淳于缇萦 丙吉，潘誕，李淳风 陵夷 阁下，麾下，足下，陛下，殿下 有扈氏：舜举贤，禹与子，有扈伐启，为启所灭 承明庐：入朝为官 蜗角：触氏，蛮氏，居于蜗之左右角，争地而战，伏尸数万。 龙伯之国：国有巨人，一钓六鳌，负而归国；十五巨鳌，可戴五山；五山高下三万里，相去七万里。 若敖之馁鬼：楚国若敖氏之鬼挨饿，子孙不传，无人祭祀耳！ 水神共工，火神祝融 掖庭：指皇宫 江淹：江郎才尽，妙笔生花 陈季常（陈慥）：龙丘先生，河东狮吼 楚襄王：高唐，高阳台，巫山云雨，荐枕席 城狐不灌，社鼠不熏：赖其所依也 社：土神 稷：谷神 龟为卜，荚（蓍草）为筮 东园：汉之制葬器之所 松，犹容也，想见其容貌而事之，主人正之意也。柏，犹迫也，亲而不远，主地正之意也。栗，犹战栗，谨敬貌，主天正之意也。  四、慨而叹之  《浅妄书》：宋之稽唐，以至谬误百出，矛盾节生，故知今之所存，何为真，何为假，何为事实，何为演义？故为学不可不多方求证，征引旁博，以求其本真！ 《史记世次》：司马温公之考，尚不足据，况后世敷衍杂凑之文？故知考古不易，洞玄窥幽以求蛛丝马迹，抽茧剥丝以求返璞归真！须越千年而溯其源，能目万字而省其实。 古之翰林，在其时必风光无限，名播海内，而至于今，则鲜为人知！当今之世，才能胜我者不啻千万，是故欲流芳后世，难上加难矣。而白驹一生，如风过中庭，了无痕迹！故当不生悲戚，及时行乐！ 《士之处世》：人生如戏，不可执着。身外之物，身外之语，姑妄视之，姑妄听之。 《世事不可料》：人生如隙，不必做万世之计。 《汉表所记事》：古书岂复可以字义求也？——字有讹误，义有转变，字不可信，义需深究，顾要旁征博引，考校互证，以求得作文者之心意。 《天下有奇士》：其他姓名不传，与草木俱腐者，盖不可胜计矣。 《物之大小》：君子语大，天下莫能载焉；语小，天下莫能破焉。 《吕子论学》：故凡学，非能益之也，达天性也，能全天下之所生，而勿败之，可谓善学者矣！——学他人之识以发本性，借外物之用以观内心，心学是也！ 张文定公：可怜萍梗飘蓬客，自叹匏瓜老病身。从此空斋挂尘榻，不知重扫待何人？ 子由：少年便识成都尹，中岁仍为幕下宾。待我江西徐孺子，一生知己有斯人！ 孔子观人：视其所以，观其所由，察其所安，人焉廋哉，人焉廋哉！ 刘禹锡：休唱贞元供奉曲，当时朝士已无多 《唐曹因墓铭》：肖形天地间，范围阴阳内，死生聚散，特世态耳，何忧喜之有哉？ 《盛衰不可常》：盛之不可留，衰之不可推！  ……
-                            </div>
-                            <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-06-25-rongzaisuibi/">阅读全文</a></p>
-                        </article>
-                    
-                    
                     
 
 
@@ -388,6 +387,10 @@
         <a href="https://www.yangwenchao.com/page/7/">7</a>
     </li>
     
+    <li >
+        <a href="https://www.yangwenchao.com/page/8/">8</a>
+    </li>
+    
 
     
     <li class="next">
@@ -416,6 +419,10 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/tech/2020/2020-09-13-apigateway/" title="网易严选API网关演进">网易严选API网关演进</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/life/2020/2020-09-12-guobailu/" title="过白露">过白露</a>
     </li>
     
@@ -429,6 +436,10 @@
     
     <li>
         <a href="https://www.yangwenchao.com/post/life/2020/2020-08-06-bazhounian/" title="网易八周年">网易八周年</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/tech/2020/2020-08-04-pgsqloptimise/" title="PostgreSql优化思路">PostgreSql优化思路</a>
     </li>
     
     <li>
@@ -447,14 +458,6 @@
         <a href="https://www.yangwenchao.com/post/life/2020/2020-07-19-nandubeigui2/" title="南渡北归二">南渡北归二</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-06-26-wuti/" title="无题">无题</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-06-25-rongzaisuibi/" title="容斋随笔">容斋随笔</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -464,7 +467,7 @@
         <h3 class="widget-title">分类</h3>
 <ul class="widget-list">
     
-    <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (4)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
     <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (66)</a></li>
     
