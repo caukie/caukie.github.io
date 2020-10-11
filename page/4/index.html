@@ -65,6 +65,63 @@
                         <article class="post">
                             <header>
                                 <h1 class="post-title">
+                                    <a href="https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/" title="Nginx的URL编解码处理机制" >Nginx的URL编解码处理机制</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2020年1月9日
+                            </date>
+                            
+                            <div class="post-meta">
+                                <span>|</span>
+                                
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF">技术</a></span>
+                                
+                            </div>
+                            
+                            <div class="post-content">
+                                背景： 业务请求：http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%e5%95%a5%e5%91%a2.pdf响应失败，异常码400，且后端服务未收到该请求。
+初步分析链路为： client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &ndash;&gt; service。
+排查：  一、经过逐级日志排查，实际是ingress侧抛出了error；此处由于ingress日志输出不完善，浪费部分时间 报错信息为：HPE_INVWALID_URL ！ 二. 经验证，为PATH中包含了未做URLENCODE的中文字符导致该异常！ 三. 对整个链路传输过程进行追踪，  1，分别对gw1，node，gw2的输入输出，发现node输出是正确编码的，而gw2收到的是解码后的数据； 2，链路修正：client &ndash;&gt;gw1 &ndash;&gt; node &ndash;&gt; consul-nginx &ndash;&gt; gw2 &ndash;&gt; ingress &ndash;&gt; service；则可以确定问题出现在 consul-nginx 这一环节，经过直接请求测试，也证明了这一点。    根因分析 上图为consul-nginx中，对应请求的location配置，其中PATH部分被$2正则替换！
+参考官方文档： 对官网说明进行分析，请求URL被中转到后端服务的场景如下：
+ 1.当proxy_pass配置的是一个URI（形如：Host+/xxx），则location匹配到的部分URI（_normalized_之后做匹配），会被替换为指令中的/xxx（可以只是根路径：/）。（如官方示例：外部请求为：/name/yyy； &ndash;&gt; 后端请求为：/remote/yyy） 2.当proxy_pass指令后配置的仅仅为HOST：1）如果直接处理原始请求：则传递到后端服务的就是外部传入的原始URI（如官方示例：外部请求为：/some/path/yyy； &ndash;&gt; 后端请求为：/some/path/yyy）；2）如中间修改了URI：则传递到后端服务是被_normalized_的请求URI。 3.当location中指定了正则进行匹配，则proxy_pass中不能只指定URI，否则无法确定替换策略，加载失败；注意：URI之后包含/$2 或 /$query_string等变量，则仍然可以正常替换 4.如果URI被rewrite修改，则proxy_pass中指定的URI被忽略，直接将修改后的完整的URI传递到后端服务； 5.如果proxy_pass中使用了变量，如$request_uri，那么被传入到后端服务的内容使用原始的请求URI内容替换。  备注：  在1.1.12版本之前，proxy_pass中不指定URI时，会直接向后透传原生的URI，而不是修改后的URI； websocket的代理从1.3.13版本开始支持，且需要特殊配置。  补充说明： URI 参考nginx中uri变量的说明：
+ 仅仅为PATH部分，不包含 ? 及 querystring； // 会被替换为 /； 会做urldecode； 中间过程可以修改该值；  request_uri 就是外部传入的原生URI，没有经过任何转义等操作；……
+                            </div>
+                            <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/">阅读全文</a></p>
+                        </article>
+                    
+                    
+		    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title">
+                                    <a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti/" title="无题" >无题</a>
+                                </h1>
+                            </header>
+                            <date class="post-meta meta-date">
+                                2020年1月7日
+                            </date>
+                            
+                            <div class="post-meta">
+                                <span>|</span>
+                                
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
+                                
+                            </div>
+                            
+                            <div class="post-content">
+                                无题
+枝头数声啼莺，惊碎寒冰，扰动春心。眼看千山染翠，万径点苍！
+春水一任东流，淘尽英雄，不舍昼夜。心思浣纱若耶，垂钓子陵！……
+                            </div>
+                            <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti/">阅读全文</a></p>
+                        </article>
+                    
+                    
+		    
+                        <article class="post">
+                            <header>
+                                <h1 class="post-title">
                                     <a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti1/" title="昨日重现" >昨日重现</a>
                                 </h1>
                             </header>
@@ -81,7 +138,7 @@
                             
                             <div class="post-content">
                                 昨日重现
-妙音悠扬又重放， 细诉昨日好时光。 怨叹过往不再来， 今日一去复凄凉。……
+妙音悠扬又重放， 细诉昨日好时光。 怨叹过往不再来， 今日一去又成殇。……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti1/">阅读全文</a></p>
                         </article>
@@ -290,59 +347,6 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                         </article>
                     
                     
-		    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title">
-                                    <a href="https://www.yangwenchao.com/post/life/2019/2019-09-17-wuti/" title="无题" >无题</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2019年9月17日
-                            </date>
-                            
-                            <div class="post-meta">
-                                <span>|</span>
-                                
-                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
-                                
-                            </div>
-                            
-                            <div class="post-content">
-                                无题
-风声呼迟速， 烛影摇明灭。 孤坐四壁空， 可有鬼神语？……
-                            </div>
-                            <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2019/2019-09-17-wuti/">阅读全文</a></p>
-                        </article>
-                    
-                    
-		    
-                        <article class="post">
-                            <header>
-                                <h1 class="post-title">
-                                    <a href="https://www.yangwenchao.com/post/life/2019/2019-09-17-wuti1/" title="无题" >无题</a>
-                                </h1>
-                            </header>
-                            <date class="post-meta meta-date">
-                                2019年9月17日
-                            </date>
-                            
-                            <div class="post-meta">
-                                <span>|</span>
-                                
-                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
-                                
-                            </div>
-                            
-                            <div class="post-content">
-                                无题
-世人皆好黄金屋， 我心偏爱板桥居。 仰首可赏瓦间月， 俯身便沐墙隙风。
-出行为伍竹中鹭， 归途有伴水上鸥。 野径无迹何处去？ 岭头白云认行踪。……
-                            </div>
-                            <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2019/2019-09-17-wuti1/">阅读全文</a></p>
-                        </article>
-                    
-                    
                     
 
 
@@ -415,6 +419,14 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-10-11-hanlu/" title="寒露">寒露</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2020/2020-10-11-xijingzaji/" title="西京杂记">西京杂记</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/tech/2020/2020-09-13-apigateway/" title="网易严选API网关演进">网易严选API网关演进</a>
     </li>
     
@@ -446,14 +458,6 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
         <a href="https://www.yangwenchao.com/post/life/2020/2020-07-19-116/" title="偶逢116">偶逢116</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-07-19-shinian/" title="十年">十年</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-07-19-nandubeigui2/" title="南渡北归二">南渡北归二</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -465,7 +469,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
     
     <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
-    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (66)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (68)</a></li>
     
 </ul>
     </section>

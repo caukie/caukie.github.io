@@ -6,10 +6,32 @@
     <description>Recent content on cake918小屋</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>zh-CN</language>
-    <lastBuildDate>Sun, 13 Sep 2020 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Sun, 11 Oct 2020 00:00:00 +0000</lastBuildDate>
     
 	<atom:link href="https://www.yangwenchao.com/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>寒露</title>
+      <link>https://www.yangwenchao.com/post/life/2020/2020-10-11-hanlu/</link>
+      <pubDate>Sun, 11 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/life/2020/2020-10-11-hanlu/</guid>
+      <description>中秋其一 月魄穿疏叶， 斑驳乱中庭。 秃尽世间帚， 丝毫不肯消。
+中秋其二 旭日旖旎旗飞扬， 星河璀璨灯阑珊。 千秋家国同一梦， 九州今夕人月圆！
+寒露其一 秋风催桂雨， 寒露沤落香。 洁身尘埃去， 冰心象外藏。
+寒露其二 日暮觉衣单， 月起琼宇寒。 良宵人不寐， 看取桂枝香。</description>
+    </item>
+    
+    <item>
+      <title>西京杂记</title>
+      <link>https://www.yangwenchao.com/post/life/2020/2020-10-11-xijingzaji/</link>
+      <pubDate>Sun, 11 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://www.yangwenchao.com/post/life/2020/2020-10-11-xijingzaji/</guid>
+      <description>西京杂记 传刘歆所著，录汉时之名人雅事，奇谈异闻，文笔可观，一娱耳目。
+一、雅句妙词  宫，殿，阙，掖 抚弦，鼓瑟，击筑，扣管，吹箫 太液池，华盖树，上林苑，绿柳营 嘉辰华诞，懋（mao4）膺洪册，敬祈xx，遥祝xx，谨奉xx，以陈踊跃之心 亮直不容于冗辈中矣 此焉宴息：RIP  二、生言僻字  苜蓿：怀风，连枝草  三、故典旧闻  吉光裘：入水不濡 惠庄拊心谓人曰：吾口不能剧谈，此中多有。——余亦若是，然世人钟爱侃侃而谈之人，亦口若悬河之人可横行于世！ 北邙  四、慨而叹之 </description>
+    </item>
     
     <item>
       <title>网易严选API网关演进</title>
@@ -37,8 +59,8 @@
       <guid>https://www.yangwenchao.com/post/life/2020/2020-09-01-kaixue/</guid>
       <description>开学
 还是将妻儿送回了衢州，杭州还是不适合我们！为了儿子能够进得学校，又找了几位同学帮忙，虽说最后还是无法寻得关系，以求得捷径，但仍是感谢各位的帮援，亦当铭记在心！总归是，有惊无险，顺利入得心仪的学校，忘犬子能不辱使命，砥砺为学！
-其一 风露起中宵， 蝉噪落林梢。 簌簌秋风扬， 心神飞九霄。
-其二 历暑芳草靡， 经秋华叶凋。 晨光如朝露， 为学应趁早。
+其一 风露起中宵， 蝉噪落林梢。 飒飒秋风扬， 心神飞九霄。
+其二 历暑芳草靡， 经秋华叶凋。 晨光如朝露， 为学当趁早。
 其三 映日荷花淡月菊， 避得寒暑逞欢情。 闻鸡起舞映雪习， 读书哪需候佳期？</description>
     </item>
     
@@ -372,7 +394,7 @@ explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch fro
       
       <guid>https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti1/</guid>
       <description>昨日重现
-妙音悠扬又重放， 细诉昨日好时光。 怨叹过往不再来， 今日一去复凄凉。</description>
+妙音悠扬又重放， 细诉昨日好时光。 怨叹过往不再来， 今日一去又成殇。</description>
     </item>
     
     <item>
