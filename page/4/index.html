@@ -69,7 +69,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2020年1月13日
+                                2020年1月13日|<span class="post-date">共34字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -80,8 +80,7 @@
                             </div>
                             
                             <div class="post-content">
-                                无题
-贱身常为俎上肉， 微躯总成釜中豆。 做羹化糜由人去， 丹心碧血自风流。……
+                                无题 贱身常为俎上肉， 微躯总成釜中豆。 做羹化糜由人去， 丹心碧血自风流。……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-01-13-wuti/">阅读全文</a></p>
                         </article>
@@ -95,7 +94,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2020年1月13日
+                                2020年1月13日|<span class="post-date">共34字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -106,8 +105,7 @@
                             </div>
                             
                             <div class="post-content">
-                                无题
-世道艰阻未曾息， 履冰蹈火总惕厉。 欲要悬帆乘风去， 一波又起浪愈急。……
+                                无题 世道艰阻未曾息， 履冰蹈火总惕厉。 欲要悬帆乘风去， 一波又起浪愈急。……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-01-13-wuti1/">阅读全文</a></p>
                         </article>
@@ -121,7 +119,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2020年1月9日
+                                2020年1月9日|<span class="post-date">共1459字</span>，阅读约<span class="more-meta"> 3 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -132,12 +130,7 @@
                             </div>
                             
                             <div class="post-content">
-                                背景： 业务请求：http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%e5%95%a5%e5%91%a2.pdf响应失败，异常码400，且后端服务未收到该请求。
-初步分析链路为： client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &ndash;&gt; service。
-排查：  一、经过逐级日志排查，实际是ingress侧抛出了error；此处由于ingress日志输出不完善，浪费部分时间 报错信息为：HPE_INVWALID_URL ！ 二. 经验证，为PATH中包含了未做URLENCODE的中文字符导致该异常！ 三. 对整个链路传输过程进行追踪，  1，分别对gw1，node，gw2的输入输出，发现node输出是正确编码的，而gw2收到的是解码后的数据； 2，链路修正：client &ndash;&gt;gw1 &ndash;&gt; node &ndash;&gt; consul-nginx &ndash;&gt; gw2 &ndash;&gt; ingress &ndash;&gt; service；则可以确定问题出现在 consul-nginx 这一环节，经过直接请求测试，也证明了这一点。    根因分析 上图为consul-nginx中，对应请求的location配置，其中PATH部分被$2正则替换！
-参考官方文档： 对官网说明进行分析，请求URL被中转到后端服务的场景如下：
- 1.当proxy_pass配置的是一个URI（形如：Host+/xxx），则location匹配到的部分URI（_normalized_之后做匹配），会被替换为指令中的/xxx（可以只是根路径：/）。（如官方示例：外部请求为：/name/yyy； &ndash;&gt; 后端请求为：/remote/yyy） 2.当proxy_pass指令后配置的仅仅为HOST：1）如果直接处理原始请求：则传递到后端服务的就是外部传入的原始URI（如官方示例：外部请求为：/some/path/yyy； &ndash;&gt; 后端请求为：/some/path/yyy）；2）如中间修改了URI：则传递到后端服务是被_normalized_的请求URI。 3.当location中指定了正则进行匹配，则proxy_pass中不能只指定URI，否则无法确定替换策略，加载失败；注意：URI之后包含/$2 或 /$query_string等变量，则仍然可以正常替换 4.如果URI被rewrite修改，则proxy_pass中指定的URI被忽略，直接将修改后的完整的URI传递到后端服务； 5.如果proxy_pass中使用了变量，如$request_uri，那么被传入到后端服务的内容使用原始的请求URI内容替换。  备注：  在1.1.12版本之前，proxy_pass中不指定URI时，会直接向后透传原生的URI，而不是修改后的URI； websocket的代理从1.3.13版本开始支持，且需要特殊配置。  补充说明： URI 参考nginx中uri变量的说明：
- 仅仅为PATH部分，不包含 ? 及 querystring； // 会被替换为 /； 会做urldecode； 中间过程可以修改该值；  request_uri 就是外部传入的原生URI，没有经过任何转义等操作；……
+                                背景： 业务请求：http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/">阅读全文</a></p>
                         </article>
@@ -151,7 +144,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2020年1月7日
+                                2020年1月7日|<span class="post-date">共60字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -162,9 +155,7 @@
                             </div>
                             
                             <div class="post-content">
-                                无题
-枝头数声啼莺，惊碎寒冰，扰动春心。眼看千山染翠，万径点苍！
-春水一任东流，淘尽英雄，不舍昼夜。心思浣纱若耶，垂钓子陵！……
+                                无题 枝头数声啼莺，惊碎寒冰，扰动春心。眼看千山染翠，万径点苍！ 春水一任东流，淘尽英雄，不舍昼夜。心思浣纱若耶，垂钓子陵！……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti/">阅读全文</a></p>
                         </article>
@@ -178,7 +169,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2020年1月7日
+                                2020年1月7日|<span class="post-date">共36字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -189,8 +180,7 @@
                             </div>
                             
                             <div class="post-content">
-                                昨日重现
-妙音悠扬又重放， 细诉昨日好时光。 怨叹过往不再来， 今日一去又成殇。……
+                                昨日重现 妙音悠扬又重放， 细诉昨日好时光。 怨叹过往不再来， 今日一去又成殇。……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2020/2020-01-07-wuti1/">阅读全文</a></p>
                         </article>
@@ -204,7 +194,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2019年12月25日
+                                2019年12月25日|<span class="post-date">共555字</span>，阅读约<span class="more-meta"> 2 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -215,12 +205,7 @@
                             </div>
                             
                             <div class="post-content">
-                                重试机制 会对指定的错误进行请求重试。其中， - 默认是指对==error==和==timeout==重试； - 在不指定==non_idempotent==时，知会对GET等幂等操作进行重试； - 可以通过==off==关闭重试机制！
-实际这里还有proxy_next_upstream_timeout，proxy_next_upstream_tries可进行更精细的控制。具体可参考Nginx官网-proxy；
-异常检测 这里可以通过server的参数，检测上游节点的有效性，其中，
-- max_fails:在特定时间区间内（fail_timeout），跟上游通信失败的次数(==连续==)，进而作为识别上游服务异常的依据，默认情况下为==1==！设置为==0==时，则关闭检测功能，认为后端永久有效；具体失败的场景，由proxy_next_upstream配置决定； - fail_timeout:1，指定通信失败计数的时间窗口；2，指定上游服务被剔除后的静默时长。
-其他具体信息可以参考Nginx官网-uptream和[Nginx官网-healthcheck。
-扩展 官网的文档也值得反复研究，目前只是这个功能涉及的少数相关配置，而nginx本身有非常丰富的功能，有必要进行更全面的科普，进而提升nginx的应用能力以及问题的定位效率！……
+                                重试机制 会对指定的错误进行请求重试。其中， - 默认是指对==error==和==timeout==重试； - 在不指定==non_idempote……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2019/2019-12-25-nginxretry/">阅读全文</a></p>
                         </article>
@@ -234,7 +219,7 @@
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2019年12月6日
+                                2019年12月6日|<span class="post-date">共794字</span>，阅读约<span class="more-meta"> 2 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -245,17 +230,7 @@
                             </div>
                             
                             <div class="post-content">
-                                背景 日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！
-在实际业务中，遇到XFF头无法取到，但是实际RemoteAddr又能正常获取到客户端的情形！
-分析   具体表现
- tomcat access日志可以正常输出XFF头，说明该请求头是正常传入的； 应用调用httpRequest.getHeader(&ldquo;X-Forwarded-For&rdquo;)，返回内容为空；    疑点
- tomcat对header做了处理； spring对header做了处理；    tomcat分析  1，查看server.xml，有如下配置：  &lt;Valve className=&quot;org.apache.catalina.valves.RemoteIpValve&quot; remoteIpHeader=&quot;X-Forwarded-For&quot; protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;https&quot;/&gt;   2，查看tomcat文档：
-https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIpValve.html 其中提到会对remoteIpHeader中，命中了internal proxies的IP，进行swallow！ 根据配置此处remoteIpHeader，就是X-Forwarded-For！
-  3， 进一步查看源码：
- 1，此处先对remoteip进行查找（==remoteIpHeader中首个非internal，非trusted的IP==），并更新至remoteAddr； 2，将剩余的remoteIpHeader中的IP进行重新构建，并更新至remoteIpHeader。 至此可以明确，一旦增加了RemoteIpValve配置，则同时会对RemoteAddr，X-Forwarded-For头产生影响。同时，对其他的header和属性也会有影响，具体影响的内容可以参考官方文档。    spring分析 尚未遇到该问题，暂且做记录。
-综述 IP的传递本身是一个比较基础的功能项，业务感知度不高，但是Nginx，Tomcat，Spring中都会有专门的模块进行分析处理。
-需要前期进行规范统一，否则容易导致IP的误取，误判！
-而实际业务使用过程中，很多是不知道底层具体实现，而采取了巧合编程，一旦出现问题，则会一头雾水！在此简略说明之。……
+                                背景 日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！ 在实际业务中，遇到XFF头无……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/tech/2019/2019-12-06-tomcatremoteip/">阅读全文</a></p>
                         </article>
@@ -269,7 +244,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2019年11月28日
+                                2019年11月28日|<span class="post-date">共34字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -280,8 +255,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                             </div>
                             
                             <div class="post-content">
-                                无题
-秋风瑟瑟秋雨寒， 梧桐零落枫叶残。 人生几得三春暖， 应将落花等闲看。……
+                                无题 秋风瑟瑟秋雨寒， 梧桐零落枫叶残。 人生几得三春暖， 应将落花等闲看。……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2019/2019-11-28-wuti/">阅读全文</a></p>
                         </article>
@@ -295,7 +269,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2019年10月20日
+                                2019年10月20日|<span class="post-date">共482字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -306,11 +280,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                             </div>
                             
                             <div class="post-content">
-                                游湘湖
- 国庆得闲，驱蹇驴，载儿女贤妻，往湘湖一游。豪情故老，以西湖比西子，鲜丽而不能掩其媚；衰颓旧翁，将湘湖作村闺，淳朴而不能藏起秀。往来墨客，古今骚人，多有西湖山色褒奖之词，然少见湘湖风景赞美之语。故当今之游客，熙熙攘攘，嘈嘈杂杂，闻苏杭之名，读钱塘之文，慕西湖之景，皆往而察之，踏先人之行迹，觅山水之佳处。
- 当今西湖之湖山，以为世间烟火所萦，并俗事凡尘所扰，绝了当年清秀隽永之骨，存了一副脂粉浓艳之皮。特乐政者另寻新址，好游者再辟蹊径，开芦荻之滩，整菰蒲之渚，清菱藻之滨，修菡萏之池，筑杨柳之堤，通幽篁之径，起跨虹之桥，建泊舟之渡。其势小成，不失古味。
- 家小四人，拾阶登桥，信步柳岸，闲坐石椅，懒卧绿茵。其余观者，两两三三，错落有序，不益其繁，不减其简，无前拥后堵之忧，少喧闹纷杂之扰。遥想当年，自携佳肴，共暖美酒，席地论道，笑谈古今，兴起而咏，醉罢而眠，月落而返，意犹未尽，其乐逾今百倍！
- 佳期匆匆，逗留短促，浮掠湖山，浅尝而止。然碧荷绿柳，白鸥锦鲤，徐徐清风，悠悠细浪，虽不能尽，已得其味矣。另如电光阴，狭短人生，得与妻小共度，方是一大乐事，不虚此行，不虚此时也！……
+                                游湘湖 国庆得闲，驱蹇驴，载儿女贤妻，往湘湖一游。豪情故老，以西湖比西子，鲜丽而不能掩其媚；衰颓旧翁，将湘湖作村闺，淳朴而不能藏起秀。往来墨客……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2019/2019-10-20-youxianghu/">阅读全文</a></p>
                         </article>
@@ -324,7 +294,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                                 </h1>
                             </header>
                             <date class="post-meta meta-date">
-                                2019年10月20日
+                                2019年10月20日|<span class="post-date">共143字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                             </date>
                             
                             <div class="post-meta">
@@ -335,14 +305,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
                             </div>
                             
                             <div class="post-content">
-                                游虎跑
-新茵染古道，老叟汲瘦泉。蓊郁苍松乔木，斑驳庙宇楼台。
-长亭声犹在，不见悲欣客。
-吴越山依旧，未遇赏峰人。
-竹篱数编，疏影枝绿，和靖居士鹤远！
-茅舍重修，蟹眼汤成，弘一法师安在？
-茂林蹊径，多少豪杰云游？任他高士大侠，随落叶，归根去也。
-滴翠残碑，几处遗迹幸存！书甚伟绩丰功，逐西风，同尘化矣。……
+                                游虎跑 新茵染古道，老叟汲瘦泉。蓊郁苍松乔木，斑驳庙宇楼台。 长亭声犹在，不见悲欣客。 吴越山依旧，未遇赏峰人。 竹篱数编，疏影枝绿，和靖居士鹤远！……
                             </div>
                             <p class="readmore"><a href="https://www.yangwenchao.com/post/life/2019/2019-10-20-youhupao/">阅读全文</a></p>
                         </article>

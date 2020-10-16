@@ -26,10 +26,7 @@
       <pubDate>Tue, 04 Aug 2020 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2020/2020-08-04-pgsqloptimise/</guid>
-      <description>背景 yanxuan-ianus网关使用kong进行架构，而kong的DB支持两种：postgresql及cassandra。
-实际落地时，选取了postgresql。（选型原因：1，两个DB均无严选应用场景，DBA无相关经验，需开发自行运维；2，对严选网关应用场景而言，两者性能优劣差别不大）
-演进阶段 基础功能  单点部署db，支持正常的db操作；（8C，16G）  集群分表  根据大集群进行表隔离；  主从复制  新增从节点，实时备份主节点数据，保证存储数据不丢失；  读写分离  通过增加多个从节点，并且将读操作分摊到从节点上，缓减主节点的读写压力；  应用优化  将原来的每小时过期，全量拉取，优化为永不失效；  配置优化  随着集群增加，调整max_connection配置； 当前最大连接数1500，MEM占70%，CPU达60%，已经达到系统瓶颈，此时部分节点会因为取不到连接而更新不够及时；  应用优化  将全量数据拉取，限定到子集群维度的事件更新和拉取，减少数据更新量以及并发节点数； 数据加载优化，基于分页拉取； 发布方式优化，不进行并行发布；  连接优化  需引入pgbouncer，使用连接池管理；  高可用支持  当前从节点仅仅做了数据备份，实际故障时，还无法进行自动切换。引入pgpool，对故障迁移等进行支持；  关键配置  shared_buffers：使用默认值128MB work_mem：使用默认值4MB wal_buffers：使用默认值4MB max_connections：1500 superuser_reserved_connections：使用默认值3  慢请求优化 EXPLAIN命令 执行explain (query text)或explain (buffers true, analyze true, verbose true) (query text)命令，查看SQL的执行计划（注意，前者不会实际执行SQL，后者会实际执行而且能得到详细的执行信息），对其中的Table Scan涉及的表，建立索引。
-explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch from created_at)*1000)::bigint as created_at, &amp;quot;config&amp;quot;, &amp;quot;id&amp;quot;, &amp;quot;name&amp;quot;, &amp;quot;cluster&amp;quot;, &amp;quot;enabled&amp;quot;, &amp;quot;consumer_id&amp;quot;, &amp;quot;api_id&amp;quot;, &amp;quot;group_id&amp;quot; FROM plugins; explain (analyze,verbose,costs,buffers,timing,summary) SELECT &amp;quot;enabled&amp;quot;, (extract(epoch from created_at)*1000)::bigint as created_at, &amp;quot;config&amp;quot;, &amp;quot;id&amp;quot;, &amp;quot;group_id&amp;quot;, &amp;quot;name&amp;quot;, &amp;quot;api_id&amp;quot;, &amp;quot;consumer_id&amp;quot; FROM plugins; 调整pgsql的log statement输出 2019-11-21 16:24:16.</description>
+      <description>背景 yanxuan-ianus网关使用kong进行架构，而kong的DB支持两种：postgresql及cassandra。 实际落地时，选取</description>
     </item>
     
     <item>
@@ -38,7 +35,7 @@ explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch fro
       <pubDate>Fri, 08 May 2020 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2020/2020-05-08-kongmatch/</guid>
-      <description>API匹配流程：find_api  1，检查是否需要提取method参数进行匹配（openapi逻辑）； 2，直接获取历史匹配缓存数据； 3，检查host，uri，method分别是否存在匹配项，进行打标； 4，根据打标，获取实际的API配置列表进行匹配，精度由细到粗（host+uri+method &amp;gt; host+uri &amp;gt; host+method &amp;gt; method + uri &amp;gt; host &amp;gt; uri &amp;gt; method）  4.1 对匹配的API列表进行reduce；（含义：提取优先匹配项（从host，uri，method三者各自匹配列表中，取出条目最少的一组），提取完整API列表项） 4.2 从优先匹配项中进行匹配； 4.3 优先匹配失败，从完整API列表项中匹配； 4.4 如果仍然匹配失败，则从次级精度API信息列表中重新匹配；（重复4.1-4.4流程）    当前请求匹配流程：  1，host，uri，method三者均有匹配项，因此三个都被打标； 2，在host+uri+method 匹配时，优先匹配项取到了：yanuxan.actfoward.default（即命中了uri的匹配列表，其中只有一项数据） 3，对优先匹配项进行匹配时，实际host不匹配，退化为从完整API列表项中进行匹配； 4，实际在完整API列表匹配时，依次匹配，返回首个匹配项；（==问题点：该列表没有对path长度做排序，由于数组中activity.act.default顺序在yanxuan.act.forward之前，导致被提前匹配并返回！==）  处理  删除无效的API配置；（==治标不治本，后续仍然存在匹配错误的风险==）  结论    删除无效路由；    目前官方也未做优化，先保持现状，通过配置阶段补充校验进行规避。    </description>
+      <description>API匹配流程：find_api 1，检查是否需要提取method参数进行匹配（openapi逻辑）； 2，直接获取历史匹配缓存数据； 3，检查h</description>
     </item>
     
     <item>
@@ -47,12 +44,7 @@ explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch fro
       <pubDate>Thu, 09 Jan 2020 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2020/2020-01-09-nginxurlprocess/</guid>
-      <description>背景： 业务请求：http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%e5%95%a5%e5%91%a2.pdf响应失败，异常码400，且后端服务未收到该请求。
-初步分析链路为： client &amp;ndash;&amp;gt; gw1 &amp;ndash;&amp;gt; node &amp;ndash;&amp;gt; gw2 &amp;ndash;&amp;gt; ingress &amp;ndash;&amp;gt; service。
-排查：  一、经过逐级日志排查，实际是ingress侧抛出了error；此处由于ingress日志输出不完善，浪费部分时间 报错信息为：HPE_INVWALID_URL ！ 二. 经验证，为PATH中包含了未做URLENCODE的中文字符导致该异常！ 三. 对整个链路传输过程进行追踪，  1，分别对gw1，node，gw2的输入输出，发现node输出是正确编码的，而gw2收到的是解码后的数据； 2，链路修正：client &amp;ndash;&amp;gt;gw1 &amp;ndash;&amp;gt; node &amp;ndash;&amp;gt; consul-nginx &amp;ndash;&amp;gt; gw2 &amp;ndash;&amp;gt; ingress &amp;ndash;&amp;gt; service；则可以确定问题出现在 consul-nginx 这一环节，经过直接请求测试，也证明了这一点。    根因分析 上图为consul-nginx中，对应请求的location配置，其中PATH部分被$2正则替换！
-参考官方文档： 对官网说明进行分析，请求URL被中转到后端服务的场景如下：
- 1.当proxy_pass配置的是一个URI（形如：Host+/xxx），则location匹配到的部分URI（_normalized_之后做匹配），会被替换为指令中的/xxx（可以只是根路径：/）。（如官方示例：外部请求为：/name/yyy； &amp;ndash;&amp;gt; 后端请求为：/remote/yyy） 2.当proxy_pass指令后配置的仅仅为HOST：1）如果直接处理原始请求：则传递到后端服务的就是外部传入的原始URI（如官方示例：外部请求为：/some/path/yyy； &amp;ndash;&amp;gt; 后端请求为：/some/path/yyy）；2）如中间修改了URI：则传递到后端服务是被_normalized_的请求URI。 3.当location中指定了正则进行匹配，则proxy_pass中不能只指定URI，否则无法确定替换策略，加载失败；注意：URI之后包含/$2 或 /$query_string等变量，则仍然可以正常替换 4.如果URI被rewrite修改，则proxy_pass中指定的URI被忽略，直接将修改后的完整的URI传递到后端服务； 5.如果proxy_pass中使用了变量，如$request_uri，那么被传入到后端服务的内容使用原始的请求URI内容替换。  备注：  在1.1.12版本之前，proxy_pass中不指定URI时，会直接向后透传原生的URI，而不是修改后的URI； websocket的代理从1.3.13版本开始支持，且需要特殊配置。  补充说明： URI 参考nginx中uri变量的说明：
- 仅仅为PATH部分，不包含 ? 及 querystring； // 会被替换为 /； 会做urldecode； 中间过程可以修改该值；  request_uri 就是外部传入的原生URI，没有经过任何转义等操作；</description>
+      <description>背景： 业务请求：http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%</description>
     </item>
     
     <item>
@@ -61,12 +53,7 @@ explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch fro
       <pubDate>Wed, 25 Dec 2019 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2019/2019-12-25-nginxretry/</guid>
-      <description>重试机制 会对指定的错误进行请求重试。其中， - 默认是指对==error==和==timeout==重试； - 在不指定==non_idempotent==时，知会对GET等幂等操作进行重试； - 可以通过==off==关闭重试机制！
-实际这里还有proxy_next_upstream_timeout，proxy_next_upstream_tries可进行更精细的控制。具体可参考Nginx官网-proxy；
-异常检测 这里可以通过server的参数，检测上游节点的有效性，其中，
-- max_fails:在特定时间区间内（fail_timeout），跟上游通信失败的次数(==连续==)，进而作为识别上游服务异常的依据，默认情况下为==1==！设置为==0==时，则关闭检测功能，认为后端永久有效；具体失败的场景，由proxy_next_upstream配置决定； - fail_timeout:1，指定通信失败计数的时间窗口；2，指定上游服务被剔除后的静默时长。
-其他具体信息可以参考Nginx官网-uptream和[Nginx官网-healthcheck。
-扩展 官网的文档也值得反复研究，目前只是这个功能涉及的少数相关配置，而nginx本身有非常丰富的功能，有必要进行更全面的科普，进而提升nginx的应用能力以及问题的定位效率！</description>
+      <description>重试机制 会对指定的错误进行请求重试。其中， - 默认是指对==error==和==timeout==重试； - 在不指定==non_idempote</description>
     </item>
     
     <item>
@@ -75,17 +62,7 @@ explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch fro
       <pubDate>Fri, 06 Dec 2019 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2019/2019-12-06-tomcatremoteip/</guid>
-      <description>背景 日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！
-在实际业务中，遇到XFF头无法取到，但是实际RemoteAddr又能正常获取到客户端的情形！
-分析   具体表现
- tomcat access日志可以正常输出XFF头，说明该请求头是正常传入的； 应用调用httpRequest.getHeader(&amp;ldquo;X-Forwarded-For&amp;rdquo;)，返回内容为空；    疑点
- tomcat对header做了处理； spring对header做了处理；    tomcat分析  1，查看server.xml，有如下配置：  &amp;lt;Valve className=&amp;quot;org.apache.catalina.valves.RemoteIpValve&amp;quot; remoteIpHeader=&amp;quot;X-Forwarded-For&amp;quot; protocolHeader=&amp;quot;X-Forwarded-Proto&amp;quot; protocolHeaderHttpsValue=&amp;quot;https&amp;quot;/&amp;gt;   2，查看tomcat文档：
-https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIpValve.html 其中提到会对remoteIpHeader中，命中了internal proxies的IP，进行swallow！ 根据配置此处remoteIpHeader，就是X-Forwarded-For！
-  3， 进一步查看源码：
- 1，此处先对remoteip进行查找（==remoteIpHeader中首个非internal，非trusted的IP==），并更新至remoteAddr； 2，将剩余的remoteIpHeader中的IP进行重新构建，并更新至remoteIpHeader。 至此可以明确，一旦增加了RemoteIpValve配置，则同时会对RemoteAddr，X-Forwarded-For头产生影响。同时，对其他的header和属性也会有影响，具体影响的内容可以参考官方文档。    spring分析 尚未遇到该问题，暂且做记录。
-综述 IP的传递本身是一个比较基础的功能项，业务感知度不高，但是Nginx，Tomcat，Spring中都会有专门的模块进行分析处理。
-需要前期进行规范统一，否则容易导致IP的误取，误判！
-而实际业务使用过程中，很多是不知道底层具体实现，而采取了巧合编程，一旦出现问题，则会一头雾水！在此简略说明之。</description>
+      <description>背景 日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！ 在实际业务中，遇到XFF头无</description>
     </item>
     
     <item>
@@ -94,8 +71,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
       <pubDate>Tue, 08 Oct 2019 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2019/2019-10-08-nginxrealip/</guid>
-      <description>nginx官方文档对remote_addr的描述，仅仅简单的提到这是client ip！
-官方文档说明， nginx.conf配置：</description>
+      <description>nginx官方文档对remote_addr的描述，仅仅简单的提到这是client ip！ 官方文档说明， nginx.conf配置：</description>
     </item>
     
     <item>
@@ -104,16 +80,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
       <pubDate>Mon, 07 Jan 2019 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2019/2019-01-07-fengkong2/</guid>
-      <description>逝者如斯，风控进阶之途期年已至，回首风控构建之路犹在昨日，而垂髫之童稚，渐已长成及冠之少年矣。途中经历之种种，权记与此，以饷同好，只可概其要，不能陈其细，还望各位海涵。 构建完成之初，其规模篇秩如下： 观彼时所言：
-其一，风控之业务与日俱增！不囿于订单、积分之长期业务，亦有抽奖、营销之短期活动；不限于严选，更旁及有钱、邮箱等产品。
-其二，刷子之脑洞与时俱进！随业务形态之千变万化，刷子面目亦奇巧精怪。而今有专业的算法、数据分析团队，索其蛛丝马迹，标其善恶美丑。
-除此之外，风控系统自求鼎革，浴火以重生，脱胎以换骨，聊举数例：
-薄框架以求部署之简  原风控平台分平台层与代理层，期代理层之灵动，平台层之稳定。然实践之时，版本频更，平台难以得其定；规则佶屈，代理难以成其动。故化繁为简，合代理与平台而为一，得部署之简便。而代理之灵动，则由规则配置框架取而代之。 建变量以求对接之便  纳业务传参于变量平台，规则配置之时，只需简单勾选操作即可。 如图所示，所有变量均在变量平台进行管理。（在此之前，均在wiki中维护，变量使用时，需要人工检索）  另对模型输出之标签，融入变量平台之内，与业务传参一统。标签者，画其像，肖其形，机器学习模型建设之果，而业务识别之本也。 变规则以求响应之速  原规则引擎，仅支持简单频率规则配置。为引入机器学习，全倚Groovy脚本之灵活，而赖开发之辛劳，又有如衣棉絮行于荆棘之中，步步维艰。因而建规则配置框架，丰条件变量，简规则配置，便产品操作。 上图为配置框架的页面，而原始内容则如下图：（配置框架搭建之前，皆由人肉编写） 另合多阶段规则为统一规则链，兼容线上仿真，多规则并驾而行，得运维之便，达运行之速。 如上图，更新前，规则所处阶段固化，无法动态调整。而线上回归独立在此规则链外，单独维护。
-如上图，更新后，所有规则统一管理，通过调整优先级来控制执行时机。另通过增加规则回归标示，对规则进行线上实时验证。
-增模型以求识别之准  组建专业之机器学习团队，取大数据平台之利，做多维度、长链路分析，出多类型、高精度模型，供业务规则以为用。而机器学习结果与风控平台对接之法：一者，以JAR包提供实时接口访问计算风险；再者，模型计算嵌入用户操作的各个阶段，结果统一以标签方式，存入标签库。
-目前已经训练上线了20多个模型，用到的算法也包罗了逻辑回归、随机森林、SVM、GDBT、LSTM、TextCNN、Bert、图计算、社区发现等！
-聚数据以求证据之全  原有订单等业务数据存储有猛犸，Hbase，redis等，数据分散，且常有缺失，不便证据检索，不便人工判别，因此将各方业务数据均实时汇总流入到ES，统一存储，并利用ES检索之特性，快速支持产品多维度检索之需要，目前已支持有近三十个参数的检索排序等。
-理平台以求产品之美  已有前端展示完全由开发设计，面向开发操作，缺少易用性，美观性等思考。因此对展示的内容进行梳理分类：删除过期操作，合并重复逻辑，分拆必要功能。  千淘万漉虽辛苦，吹尽狂沙始到金！风控平台一直在业务的锤炼下砥砺前行，我们仍然在进阶的路上！</description>
+      <description>逝者如斯，风控进阶之途期年已至，回首风控构建之路犹在昨日，而垂髫之童稚，渐已长成及冠之少年矣。途中经历之种种，权记与此，以饷同好，只可概其要</description>
     </item>
     
     <item>
@@ -122,20 +89,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
       <pubDate>Wed, 24 Jan 2018 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2018/2018-12-25-wangguan1/</guid>
-      <description>此处应有背景 近几年微服务架构如日中天，微服务化亦是大势所趋，严选的微服务化改造也已初具规模，基于Sidecar模式的服务网格渐趋稳定，其基本架构如下：（图片引自网络） 数据面部分，Sidecar代理采用nginx，并基于nginx扩展，包括服务发现，负载均衡，健康检查等。其控制面为Consul管理平台。 同时部分sidecar功能，也被嵌入到tomcat容器或第三方Client中，如链路跟踪，流量采样等，其控制面为apolloY配置中心。 关于Sidecar的介绍，没有比原图更直观的了！（图片引自网络） 与此同时，作为微服务架构中不可或缺的组成部分：API Gateway，也就应运而生。
-合适的才是最好的 根据活跃度、语言、支持功能、上手难易等，对开源社区（Tky，MicroGateway，Zuul，Kong等）进行比较分析。 除了网关基本功能之外，我们更关注于性能以及可扩展性，因此倾向于非Java的实现，同时考虑到入门门槛、后续的发展，最终锁定了Kong。 Kong的详细介绍，参考官方文档：https://konghq.com/kong-community-edition/。 Openresty部分，从原理到应用，可参看官方文档。
-一切从源码开始 从官方Fork了当时最新版本0.2.3（截至本文书写时，官方已更新至1.0.0版本），参考编译安装手册，依次安装Openresty，Luarocks，Kong，PostgreSQL。除了LUA环境、Openssl依赖小有波澜，一切进展顺利，首个进程轻松启动。 良好的开始是成功的一半！实践证明，这里只是整个进度条的1%！之后我们优化了Openresty的依赖模块，标准化了环境变量的路径以及应用的安装路径，最终输出了严选API网关的编译安装手册以及自动化脚本。
-大道至简，天下归一 在已有场景下，一个应用节点更新，首先需要到Consul平台进行下线（很nice），而另外还需要SA协助从入口Nginx调整域名的Upstream配置（很简陋）。一者，服务更新的复杂度高，再者，额外依赖了SA的操作。结果就是导致服务更新的笨重！因此，网关引入consul-module，集成Sidecar的服务注册发现功能，之后，不论访问方式如何，业务只需要关心Consul平台的配置即可，简单易行，皆大欢喜。 同时，已有Kong配置，缺少对API的有效标识，在严选Consul架构下，网关对单个Location进行有效的定义：产品名+服务名+接口名，一方面，将无意义的Location进行命名，方便记忆；另一方面，根据定义好的名字，可以快速检索配置。
-物以类聚，分而治之 集群部署隔离 商业版提供了完整的管理平台，对集群、插件、监控等进行管理。而严选环境下，我们也需要根据网络环境、使用场景、入口业务进行集群区分，进而实现资源隔离！ 根据网络环境，目前区分了：测试网关集群，内网网关集群，外网网关集群等； 根据使用场景，目前区分了：出口网关集群，ABTest网关集群，压测网关集群等； 根据入口业务，目前区分了：主站网关集群，活动网关集群，Openapi网关集群等； 如上图所示，实际我们先根据网络环境区分大集群，然后根据业务、场景再细分子集群。
-接口访问隔离  业务接口的访问：  依赖于身份验证插件，进行接口级别的租户信息验证。为此，我们扩充了租户管理，可以配置租户的验证策略，以及租户级别的频控等策略。
- 管理接口的暴露：  仅支持本地IP访问，且只暴露监控数据的获取接口；
-配置管理隔离 基于严选已有的权限中心，我们结合API网关的配置页面，细化了面向API网关的访问权限。
- 用户：  可以走openpid进行登录的所有corp账号，创建是需要指定所属的角色；
- 角色：  可以定制不同角色可见的模块，比如业务方只需要查看监控模块、插件配置，不可进行操作；
- 群组：  API创建时，需要指定其所属群组，群组下可以添加具体的用户，此时，该用户只能看到该群组下的API配置信息； 如上图所示， 用户 &amp;ndash; 角色 &amp;ndash; API：操作权限控制 用户 &amp;ndash; 群组 &amp;ndash; API：API业务隔离
-战战兢兢，如履薄冰 可维护 作为所有业务的总入口，一旦有风吹草动，那必然是一石激起千层浪！除了服务稳定性，我们把日常的运维工作作为重中之重！
- 统计报表  多维度实时查看线上流量、响应错误码、响应时间、TCP链接数等，方便第一时间确认问题点。
- 监控告警  基于实时平台，对异常日志、错误请求进行实时监控。 基于运维平台，对系统基础资源，包括CPU，内存，磁盘等进行实时监控。 一旦出现异常及时告警，目前我们依赖了锦衣卫以及邮件进行相关的告警通知。 由于网关数据流量大，在此仅对异常请求数据进行入库，目前使用Elasticsearch进行存储，方便问题的定位分析。</description>
+      <description>此处应有背景 近几年微服务架构如日中天，微服务化亦是大势所趋，严选的微服务化改造也已初具规模，基于Sidecar模式的服务网格渐趋稳定，其基本</description>
     </item>
     
     <item>
@@ -144,13 +98,7 @@ https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIp
       <pubDate>Wed, 24 Jan 2018 00:00:00 +0000</pubDate>
       
       <guid>https://www.yangwenchao.com/post/tech/2018/2018-01-24-fengkong1/</guid>
-      <description>本文旨在对严选风控平台搭建的具体实现历程做更详细的说明。
-回想五月初，还在跟财务的妹子们聊的不亦乐乎，突然就被拉回到了一堆糙汉子中间，世界暗淡无光。也就在此时，我听到了“风控”，之后便一直与之纠缠不清，不能释怀，书记递给了我一份python代码，捧过这卷风控奥义，我仿佛看见了上帝。其实，还有一个图，是这样的 WTF，这是什么玩意儿！看到书记狡黠的微笑，我明白了，这个坑有点大，这个锅有点重，这条路很漫长！
- 第一个念想，看看外面有没有的借鉴（抄袭）！京东、美团、爱奇艺、携程&amp;hellip;&amp;hellip; 都感觉能抄，但其实什么也抄不到，业界的说法基本类似，画的图也基本雷同，我艰难的抉择并复制了几个图，一个月后，我看到的仍然就是那几个图，他们静静的躺在我的doc里面。感觉风控很简单，这几张图就包含了所有，感觉风控很复杂，我仍然不知该从何处下手！恩，没错，他们的图，大概是下面这样子的， 此时，我再次拾起了书记的那份python代码，虽然看上去很挫，但是很实用，反复把玩，总归有个可以下手的地方。一番努力（其实一天足够了），python变成了java，感觉趁手了许多。但是，它仍旧只能躺在代码仓库里。几天后，炬少走过来跟我说，我这里有个数据平台叫Flink，很好用，实时计算的，你可以试试哦！我也就信了，后来伴随着数据平台的N次迁移改造，我也明白过来，我不就是那只小白鼠么！当然，感谢炬少，风控的demo版，好歹在数据平台的demo版上跑起来了。风控的晨曦已经足够迷人，我们的0.1版也正式扬帆起航。对，就是下面这样子的， 之后，我又重新翻起了doc那几张图，“规则引擎”，“计数中心”，“配置中心”&amp;hellip;&amp;hellip;一个一个模块渐渐浮出水面，清晰异常，只需按图索骥，各个击破。规则引擎的选择，仅仅根据官方说明，以及各个论坛上只言片语的介绍，只能是一脸茫然，干脆选取最方便上手的drools进行实施，目前看来运行稳定，性能也足够。虽然事后有看到说其性能不行等等论调，但实践证明，只要适合自己的业务场景需求，那就是最好的。当然，在经历双十一之后，暴露出drools的灵活性不尽如人意，进而我们又引入了另一个业界常用的groovy作为补充，双剑合璧，也就形成了现在的规则系统，取drools的模板化做频率规则，取groovy的动态化做定制策略，两者相辅相成。
- 八月伊始，新鲜的血液流入，风控项目也算是正式建立起来，各个组件分拆实现，风控工作台开发等，开始如火如荼搞起来了。配置中心、计数中心、信誉中心、数据检索、报表展示、数据访问层等等也都在这个阶段明确并固化，各个业务也开始有条不紊的接入。在新系统中，新的规则应用，初期的效果非常振奋人心，此时风控才真正崭露头角，小试牛刀。此时整个系统基本成型，是这个样子的， 九月初，频率的识别量日渐式微，基于模型的识别迫在眉睫，在炬少的大力支持推动下，机器学习也开始正式提上日程，也就在此时识别中心和拦截中心这两个概念才明确区分，基于模型的识别又分为离线模型、准实时模型、实时模型，具体模型的构建也稳步前行，并在实际拦截的占比中逐步提升，目前已经超出了90%，成为识别的主力军，后续主要工作也将集中于更多的数据分析、模型的构建、优化上面。
- 十月后，系统主要功能已趋于完善，我们重点考虑服务的可靠性，分拆出了风控接入层，应对不同业务接入时，避免对核心业务造成影响，同时也将业务在接入层进行隔离，避免相互影响。同时也搭建了风控系统自身的压测环境，并得出了相关的性能基线，作为后续接入业务的基准。此时我们也开始考虑风控系统自身的稳定性，可靠性，容灾，性能调优等等。比如，对整个系统的物理部署拓扑做了规划，从物理上进行了隔离，并引入了流量控制、灰度控制等逻辑。针对所有接入业务的性能峰值进行评估，并对所有可能出问题的点做了预案，万事俱备，只欠一场真正的考验！
- 双十一期间，风控严阵以待，实践证明之前的预案设计是行之有效的，各个业务的流量曲线尽在掌握之中。但是，为应对临时的线上问题，突发的增加了一些规则，也给系统引入了不可控因素。因此，双十一之后，重点对规则的添加、修改流程做了完善，规范了规则上线步骤，增加验证和线上回归等阶段，确保线上的调整可控。同时，还补充了规则的命中率监控，小单监控等，确保可以实时感知到线上的波动，及时作出响应。
- 道高一尺魔高一丈，这是一场无止境的战争，风控系统一直在提升刷子的难度，但是无法杜绝刷子。而刷子也会绞尽脑汁，或脑洞大开，总有办法绕过我们的防御，一旦我们响应不够及时，他们就会趁机涌入千军万马。为此，我们又在这之后构筑了一道新的防线：事后仲裁！这里支持自动识别和人工判别，对绕过的危险分子进行再次识别，对公司的资产的流失进行二次防护。当然，除风控系统自身，我们还可以根据客服，物流等的反馈，再次兜底。恩，最终版本，是下面这样子的，  当然，风控的大厦并未就此完结。一者，随着越来越多业务的接入，也需要风控系统能够灵活的应对各个业务的变化；再者，刷子的无限想象力是我们后续进步的动力，需要能够快速响应，包括新特征的分析，新模型的构建等。雄关漫道真如铁，而今迈步从头越，简单的回忆了下风控构建历程，与诸位共勉！</description>
+      <description>本文旨在对严选风控平台搭建的具体实现历程做更详细的说明。 回想五月初，还在跟财务的妹子们聊的不亦乐乎，突然就被拉回到了一堆糙汉子中间，世界暗淡</description>
     </item>
     
   </channel>
