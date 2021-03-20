@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.60.1" />
+    <meta name="generator" content="Hugo 0.68.3" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -91,11 +91,11 @@
                         
                         
                         <div class="post-content">
-                            <h3 id="heading">背景：</h3>
+                            <h3 id="背景">背景：</h3>
 <p>业务请求：<code>http://xxx/docs/%e5%a5%bd%e5%a5%bd%e5%ad%a6%e4%b9%a0%e6%83%b3%e5%95%a5%e5%91%a2.pdf</code>响应失败，异常码400，且后端服务未收到该请求。<br>
 初步分析链路为：
 client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &ndash;&gt; service。</p>
-<h3 id="heading1">排查：</h3>
+<h3 id="排查">排查：</h3>
 <ul>
 <li>一、经过逐级日志排查，实际是ingress侧抛出了error；<em>此处由于ingress日志输出不完善，浪费部分时间</em>
 <img src="/assets/images/2020/tech/nginxurl1.png" alt="pic">
@@ -108,7 +108,7 @@ client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &nda
 </ul>
 </li>
 </ul>
-<h3 id="heading2">根因分析</h3>
+<h3 id="根因分析">根因分析</h3>
 <p><img src="/assets/images/2020/tech/nginxurl2.png" alt="pic"></p>
 <p>上图为consul-nginx中，对应请求的location配置，其中PATH部分被<code>$2</code>正则替换！<br>
 参考<a href="http://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_pass">官方文档</a>：
@@ -121,12 +121,12 @@ client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &nda
 <li>4.如果URI被rewrite修改，则proxy_pass中指定的URI被忽略，直接将修改后的完整的URI传递到后端服务；</li>
 <li>5.如果proxy_pass中使用了变量，如$request_uri，那么被传入到后端服务的内容使用原始的请求URI内容替换。</li>
 </ul>
-<h4 id="heading3">备注：</h4>
+<h4 id="备注">备注：</h4>
 <ul>
 <li>在1.1.12版本之前，proxy_pass中不指定URI时，会直接向后透传原生的URI，而不是修改后的URI；</li>
 <li>websocket的代理从1.3.13版本开始支持，且需要特殊配置。</li>
 </ul>
-<h3 id="heading4">补充说明：</h3>
+<h3 id="补充说明">补充说明：</h3>
 <h4 id="uri">URI</h4>
 <p>参考nginx中uri变量的说明：</p>
 <ul>
@@ -135,15 +135,15 @@ client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &nda
 <li>会做urldecode；</li>
 <li>中间过程可以修改该值；</li>
 </ul>
-<h4 id="requesturi">request_uri</h4>
+<h4 id="request_uri">request_uri</h4>
 <p>就是外部传入的原生URI，没有经过任何转义等操作；</p>
 <h4 id="normalized-uri">normalized URI</h4>
 <p><img src="/assets/images/2020/tech/nginxurl4.png" alt="pic"></p>
 <p>location匹配时使用的URI，实际 <em>是request URI被decoding后的值！</em><br>
 这也是本次问题出现的核心点：<em>$2即为该decoding后的内容</em>，进而导致后端server收到的值，也是被decoding后的内容！</p>
-<h3 id="heading5">结论</h3>
+<h3 id="结论">结论</h3>
 <p>本次问题的引入实际为nginx的proxy_pass对匹配内容进行normalized导致！</p>
-<h3 id="heading6">优化</h3>
+<h3 id="优化">优化</h3>
 <p>其实该操作，从官方角度出发，有助于进行合法性检查和安全性校验，可提升系统的安全性！（如当前场景下，是因为path中出现了中文！）<br>
 最终建议用户优化使用方式，并为后续业务URI的定义给出一定的规范！</p>
 
@@ -215,7 +215,19 @@ client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &nda
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-3-20-waerdenghu/" title="瓦尔登湖">瓦尔登湖</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-20-bainiangudu/" title="百年孤独">百年孤独</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-renjianshige/" title="人间失格">人间失格</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-zenandart/" title="禅与摩托车维修艺术">禅与摩托车维修艺术</a>
     </li>
     
     <li>
@@ -242,18 +254,6 @@ client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &nda
         <a href="https://www.yangwenchao.com/post/life/2020/2020-12-28-xizuo/" title="戏作">戏作</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-nandubeigui3/" title="南渡北归三">南渡北归三</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-jingangchuan/" title="金刚川">金刚川</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-taoanmengyi/" title="陶庵梦忆">陶庵梦忆</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -265,7 +265,7 @@ client &ndash;&gt; gw1 &ndash;&gt; node &ndash;&gt; gw2 &ndash;&gt; ingress &nda
     
     <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
-    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (84)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (87)</a></li>
     
 </ul>
     </section>

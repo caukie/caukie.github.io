@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.60.1" />
+    <meta name="generator" content="Hugo 0.68.3" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -91,7 +91,7 @@
                         
                         
                         <div class="post-content">
-                            <h3 id="heading">此处应有背景</h3>
+                            <h3 id="此处应有背景">此处应有背景</h3>
 <p>近几年微服务架构如日中天，微服务化亦是大势所趋，严选的微服务化改造也已初具规模，基于Sidecar模式的服务网格渐趋稳定，其基本架构如下：（图片引自网络）
 <img src="/assets/images/2018/tech/wangguan1.png" alt="pic"></p>
 <p>数据面部分，Sidecar代理采用nginx，并基于nginx扩展，包括服务发现，负载均衡，健康检查等。其控制面为Consul管理平台。
@@ -99,26 +99,26 @@
 关于Sidecar的介绍，没有比原图更直观的了！（图片引自网络）
 <img src="/assets/images/2018/tech/wangguan2.png" alt="pic"></p>
 <p>与此同时，作为微服务架构中不可或缺的组成部分：API Gateway，也就应运而生。</p>
-<h3 id="heading1">合适的才是最好的</h3>
+<h3 id="合适的才是最好的">合适的才是最好的</h3>
 <p>根据活跃度、语言、支持功能、上手难易等，对开源社区（Tky，MicroGateway，Zuul，Kong等）进行比较分析。
 除了网关基本功能之外，我们更关注于性能以及可扩展性，因此倾向于非Java的实现，同时考虑到入门门槛、后续的发展，最终锁定了Kong。
 Kong的详细介绍，参考官方文档：https://konghq.com/kong-community-edition/。
 Openresty部分，从原理到应用，可参看官方文档。</p>
-<h3 id="heading2">一切从源码开始</h3>
+<h3 id="一切从源码开始">一切从源码开始</h3>
 <p>从官方Fork了当时最新版本0.2.3（截至本文书写时，官方已更新至1.0.0版本），参考编译安装手册，依次安装Openresty，Luarocks，Kong，PostgreSQL。除了LUA环境、Openssl依赖小有波澜，一切进展顺利，首个进程轻松启动。
 良好的开始是成功的一半！实践证明，这里只是整个进度条的1%！之后我们优化了Openresty的依赖模块，标准化了环境变量的路径以及应用的安装路径，最终输出了严选API网关的编译安装手册以及自动化脚本。</p>
-<h3 id="heading3">大道至简，天下归一</h3>
+<h3 id="大道至简天下归一">大道至简，天下归一</h3>
 <p>在已有场景下，一个应用节点更新，首先需要到Consul平台进行下线（很nice），而另外还需要SA协助从入口Nginx调整域名的Upstream配置（很简陋）。一者，服务更新的复杂度高，再者，额外依赖了SA的操作。结果就是导致服务更新的笨重！因此，网关引入consul-module，集成Sidecar的服务注册发现功能，之后，不论访问方式如何，业务只需要关心Consul平台的配置即可，简单易行，皆大欢喜。
 同时，已有Kong配置，缺少对API的有效标识，在严选Consul架构下，网关对单个Location进行有效的定义：产品名+服务名+接口名，一方面，将无意义的Location进行命名，方便记忆；另一方面，根据定义好的名字，可以快速检索配置。</p>
-<h3 id="heading4">物以类聚，分而治之</h3>
-<h4 id="heading5">集群部署隔离</h4>
+<h3 id="物以类聚分而治之">物以类聚，分而治之</h3>
+<h4 id="集群部署隔离">集群部署隔离</h4>
 <p>商业版提供了完整的管理平台，对集群、插件、监控等进行管理。而严选环境下，我们也需要根据网络环境、使用场景、入口业务进行集群区分，进而实现资源隔离！
 根据网络环境，目前区分了：测试网关集群，内网网关集群，外网网关集群等；
 根据使用场景，目前区分了：出口网关集群，ABTest网关集群，压测网关集群等；
 根据入口业务，目前区分了：主站网关集群，活动网关集群，Openapi网关集群等；
 <img src="/assets/images/2018/tech/wangguan3.png" alt="pic">
 如上图所示，实际我们先根据网络环境区分大集群，然后根据业务、场景再细分子集群。</p>
-<h4 id="heading6">接口访问隔离</h4>
+<h4 id="接口访问隔离">接口访问隔离</h4>
 <ul>
 <li>业务接口的访问：</li>
 </ul>
@@ -127,7 +127,7 @@ Openresty部分，从原理到应用，可参看官方文档。</p>
 <li>管理接口的暴露：</li>
 </ul>
 <p>仅支持本地IP访问，且只暴露监控数据的获取接口；</p>
-<h4 id="heading7">配置管理隔离</h4>
+<h4 id="配置管理隔离">配置管理隔离</h4>
 <p>基于严选已有的权限中心，我们结合API网关的配置页面，细化了面向API网关的访问权限。</p>
 <ul>
 <li>用户：</li>
@@ -145,8 +145,8 @@ Openresty部分，从原理到应用，可参看官方文档。</p>
 <p>如上图所示，
 用户 &ndash; 角色 &ndash; API：操作权限控制
 用户 &ndash; 群组 &ndash; API：API业务隔离</p>
-<h3 id="heading8">战战兢兢，如履薄冰</h3>
-<h4 id="heading9">可维护</h4>
+<h3 id="战战兢兢如履薄冰">战战兢兢，如履薄冰</h3>
+<h4 id="可维护">可维护</h4>
 <p>作为所有业务的总入口，一旦有风吹草动，那必然是一石激起千层浪！除了服务稳定性，我们把日常的运维工作作为重中之重！</p>
 <ul>
 <li>统计报表</li>
@@ -160,7 +160,7 @@ Openresty部分，从原理到应用，可参看官方文档。</p>
 一旦出现异常及时告警，目前我们依赖了锦衣卫以及邮件进行相关的告警通知。
 <img src="/assets/images/2018/tech/wangguan5.png" alt="pic">
 由于网关数据流量大，在此仅对异常请求数据进行入库，目前使用Elasticsearch进行存储，方便问题的定位分析。</p>
-<h4 id="heading10">可管控</h4>
+<h4 id="可管控">可管控</h4>
 <p>Kong自身的配置方式，没有权限控制，没有历史跟踪，简单粗暴，不适用于生产环境。因此我们再现有配置基础之上，包装了基于Mongodb的配置管理，支持历史版本的回溯，版本回退，版本比较等功能。</p>
 <ul>
 <li>引入工单协同系统</li>
@@ -170,7 +170,7 @@ Openresty部分，从原理到应用，可参看官方文档。</p>
 <li>扩展灰度发布功能</li>
 </ul>
 <p>可以在指定节点运行更新内容，将配置出错的影响降到最低。</p>
-<h3 id="heading11">插件！插件！插件！</h3>
+<h3 id="插件插件插件">插件！插件！插件！</h3>
 <p>Kong在Openresty上做的最大贡献，莫过于对插件的规范，插件支持热插拔，以及灵活的动态配置。在此框架下，可以从心所欲，业务心有多大，我们就可以做多大！</p>
 <ul>
 <li>公共插件</li>
@@ -181,7 +181,7 @@ Openresty部分，从原理到应用，可参看官方文档。</p>
 </ul>
 <p>前期帮助业务定制了加解密插件，超时重试插件，ABTest分流插件等。随着接入业务的扩充，我们将插件开发进行开放，由业务来实现插件，向Serveless迈进了一小步！
 <img src="/assets/images/2018/tech/wangguan6.png" alt="pic"></p>
-<h3 id="heading12">门户虽开，恶人勿近</h3>
+<h3 id="门户虽开恶人勿近">门户虽开，恶人勿近</h3>
 <p>网关作为所有访问的大门，我们在这个大门上装上了扫描器WAF（Web Application Firewall），用于识别是来访者是正常用户请求，还是恶意的攻击。对于恶意的访问，可以提前拒绝，确保应用服务器资源的有效利用。
 WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略的动态配置。</p>
 <ol>
@@ -226,7 +226,7 @@ WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略�
 <li>网关管理平台功能如下：
 <img src="/assets/images/2018/tech/wangguan10.png" alt="pic"></li>
 </ul>
-<h3 id="-or-">骡子 or 马</h3>
+<h3 id="骡子-or-马">骡子 or 马</h3>
 <p>系统的轮子转起来之后，接下来我们就开始往里面添加各种需要加工的材料，也就是将各个业务的流量导入到网关，让网关真正开始做事。
 整个流量导入的过程是相当漫长的，从七月份到如今，我们把测试环境、内网环境的域名访问的90%流量均导入到了网关，同时外网环境的主要入口的流量也导入到网关。
 在整个导流的过程中，顺便将业务管理进行了规范化，统一注册到了Consul，在此，非常感谢各个业务的密切配合。
@@ -254,7 +254,7 @@ WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略�
 利用网关的分流及灰度策略，做为Ab压测的入口，实现AB分流功能。</p>
 </li>
 </ul>
-<h3 id="heading13">此处应有总结</h3>
+<h3 id="此处应有总结">此处应有总结</h3>
 <p>目前严选API网关的部署架构已基本成形，而流量的导入工作仍在持续进行。随着业务的不断状态，网关的形态也会不断分化。
 但是，这一切不会止步于网关！一方面，我们会引入更多的网关形态，另一方面，基于网关的基础设施，我们希望产出更多其他业务设施！</p>
 
@@ -326,7 +326,19 @@ WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略�
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-3-20-waerdenghu/" title="瓦尔登湖">瓦尔登湖</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-20-bainiangudu/" title="百年孤独">百年孤独</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-renjianshige/" title="人间失格">人间失格</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-zenandart/" title="禅与摩托车维修艺术">禅与摩托车维修艺术</a>
     </li>
     
     <li>
@@ -353,18 +365,6 @@ WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略�
         <a href="https://www.yangwenchao.com/post/life/2020/2020-12-28-xizuo/" title="戏作">戏作</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-nandubeigui3/" title="南渡北归三">南渡北归三</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-jingangchuan/" title="金刚川">金刚川</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-taoanmengyi/" title="陶庵梦忆">陶庵梦忆</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -376,7 +376,7 @@ WAF以插件的形式嵌入到调用链中，支持匹配规则、触发策略�
     
     <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
-    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (84)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (87)</a></li>
     
 </ul>
     </section>

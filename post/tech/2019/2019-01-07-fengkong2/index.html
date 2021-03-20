@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.60.1" />
+    <meta name="generator" content="Hugo 0.68.3" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -98,16 +98,16 @@
 其一，风控之业务与日俱增！不囿于订单、积分之长期业务，亦有抽奖、营销之短期活动；不限于严选，更旁及有钱、邮箱等产品。<br>
 其二，刷子之脑洞与时俱进！随业务形态之千变万化，刷子面目亦奇巧精怪。而今有专业的算法、数据分析团队，索其蛛丝马迹，标其善恶美丑。<br>
 除此之外，风控系统自求鼎革，浴火以重生，脱胎以换骨，聊举数例：</p>
-<h3 id="heading">薄框架以求部署之简</h3>
+<h3 id="薄框架以求部署之简">薄框架以求部署之简</h3>
 <p>  原风控平台分平台层与代理层，期代理层之灵动，平台层之稳定。然实践之时，版本频更，平台难以得其定；规则佶屈，代理难以成其动。故化繁为简，合代理与平台而为一，得部署之简便。而代理之灵动，则由规则配置框架取而代之。
 <img src="/assets/images/2019/tech/fengkong22.png" alt="pic"></p>
-<h3 id="heading1">建变量以求对接之便</h3>
+<h3 id="建变量以求对接之便">建变量以求对接之便</h3>
 <p>  纳业务传参于变量平台，规则配置之时，只需简单勾选操作即可。
 如图所示，所有变量均在变量平台进行管理。（<em>在此之前，均在wiki中维护，变量使用时，需要人工检索</em>）
 <img src="/assets/images/2019/tech/fengkong23.png" alt="pic"></p>
 <p>  另对模型输出之标签，融入变量平台之内，与业务传参一统。标签者，画其像，肖其形，机器学习模型建设之果，而业务识别之本也。
 <img src="/assets/images/2019/tech/fengkong24.png" alt="pic"></p>
-<h3 id="heading2">变规则以求响应之速</h3>
+<h3 id="变规则以求响应之速">变规则以求响应之速</h3>
 <p>  原规则引擎，仅支持简单频率规则配置。为引入机器学习，全倚Groovy脚本之灵活，而赖开发之辛劳，又有如衣棉絮行于荆棘之中，步步维艰。因而建规则配置框架，丰条件变量，简规则配置，便产品操作。
 <img src="/assets/images/2019/tech/fengkong25.png" alt="pic">
 上图为配置框架的页面，而原始内容则如下图：（<em>配置框架搭建之前，皆由人肉编写</em>）
@@ -117,12 +117,12 @@
 如上图，更新前，规则所处阶段固化，无法动态调整。而线上回归独立在此规则链外，单独维护。</p>
 <p><img src="/assets/images/2019/tech/fengkong28.png" alt="pic">
 如上图，更新后，所有规则统一管理，通过调整优先级来控制执行时机。另通过增加规则回归标示，对规则进行线上实时验证。</p>
-<h3 id="heading3">增模型以求识别之准</h3>
+<h3 id="增模型以求识别之准">增模型以求识别之准</h3>
 <p>  组建专业之机器学习团队，取大数据平台之利，做多维度、长链路分析，出多类型、高精度模型，供业务规则以为用。而机器学习结果与风控平台对接之法：一者，以JAR包提供实时接口访问计算风险；再者，模型计算嵌入用户操作的各个阶段，结果统一以标签方式，存入标签库。<br>
   <em><strong>目前已经训练上线了20多个模型，用到的算法也包罗了逻辑回归、随机森林、SVM、GDBT、LSTM、TextCNN、Bert、图计算、社区发现等！</strong></em></p>
-<h3 id="heading4">聚数据以求证据之全</h3>
+<h3 id="聚数据以求证据之全">聚数据以求证据之全</h3>
 <p>  原有订单等业务数据存储有猛犸，Hbase，redis等，数据分散，且常有缺失，不便证据检索，不便人工判别，因此将各方业务数据均实时汇总流入到ES，统一存储，并利用ES检索之特性，快速支持产品多维度检索之需要，目前已支持有近三十个参数的检索排序等。</p>
-<h3 id="heading5">理平台以求产品之美</h3>
+<h3 id="理平台以求产品之美">理平台以求产品之美</h3>
 <p>  已有前端展示完全由开发设计，面向开发操作，缺少易用性，美观性等思考。因此对展示的内容进行梳理分类：删除过期操作，合并重复逻辑，分拆必要功能。
 <img src="/assets/images/2019/tech/fengkong29.png" alt="pic"></p>
 <p>  千淘万漉虽辛苦，吹尽狂沙始到金！风控平台一直在业务的锤炼下砥砺前行，我们仍然在进阶的路上！</p>
@@ -195,7 +195,19 @@
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-3-20-waerdenghu/" title="瓦尔登湖">瓦尔登湖</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-20-bainiangudu/" title="百年孤独">百年孤独</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-renjianshige/" title="人间失格">人间失格</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-zenandart/" title="禅与摩托车维修艺术">禅与摩托车维修艺术</a>
     </li>
     
     <li>
@@ -222,18 +234,6 @@
         <a href="https://www.yangwenchao.com/post/life/2020/2020-12-28-xizuo/" title="戏作">戏作</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-nandubeigui3/" title="南渡北归三">南渡北归三</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-jingangchuan/" title="金刚川">金刚川</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-taoanmengyi/" title="陶庵梦忆">陶庵梦忆</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -245,7 +245,7 @@
     
     <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
-    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (84)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (87)</a></li>
     
 </ul>
     </section>

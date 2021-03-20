@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.60.1" />
+    <meta name="generator" content="Hugo 0.68.3" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -91,50 +91,50 @@
                         
                         
                         <div class="post-content">
-                            <h3 id="heading">背景</h3>
+                            <h3 id="背景">背景</h3>
 <p>yanxuan-ianus网关使用kong进行架构，而kong的DB支持两种：postgresql及cassandra。<br>
 实际落地时，选取了postgresql。（选型原因：1，两个DB均无严选应用场景，DBA无相关经验，需开发自行运维；2，对严选网关应用场景而言，两者性能优劣差别不大）</p>
-<h3 id="heading1">演进阶段</h3>
-<h4 id="heading2">基础功能</h4>
+<h3 id="演进阶段">演进阶段</h3>
+<h4 id="基础功能">基础功能</h4>
 <ul>
 <li>单点部署db，支持正常的db操作；（8C，16G）</li>
 </ul>
-<h4 id="heading3">集群分表</h4>
+<h4 id="集群分表">集群分表</h4>
 <ul>
 <li>根据大集群进行表隔离；</li>
 </ul>
-<h4 id="heading4">主从复制</h4>
+<h4 id="主从复制">主从复制</h4>
 <ul>
 <li>新增从节点，实时备份主节点数据，保证存储数据不丢失；</li>
 </ul>
-<h4 id="heading5">读写分离</h4>
+<h4 id="读写分离">读写分离</h4>
 <ul>
 <li>通过增加多个从节点，并且将读操作分摊到从节点上，缓减主节点的读写压力；</li>
 </ul>
-<h4 id="heading6">应用优化</h4>
+<h4 id="应用优化">应用优化</h4>
 <ul>
 <li>将原来的每小时过期，全量拉取，优化为永不失效；</li>
 </ul>
-<h4 id="heading7">配置优化</h4>
+<h4 id="配置优化">配置优化</h4>
 <ul>
 <li>随着集群增加，调整max_connection配置；</li>
 <li>当前最大连接数1500，MEM占70%，CPU达60%，已经达到系统瓶颈，此时部分节点会因为取不到连接而更新不够及时；</li>
 </ul>
-<h4 id="heading8">应用优化</h4>
+<h4 id="应用优化-1">应用优化</h4>
 <ul>
 <li>将全量数据拉取，限定到子集群维度的事件更新和拉取，减少数据更新量以及并发节点数；</li>
 <li>数据加载优化，基于分页拉取；</li>
 <li>发布方式优化，不进行并行发布；</li>
 </ul>
-<h4 id="heading9">连接优化</h4>
+<h4 id="连接优化">连接优化</h4>
 <ul>
 <li>需引入pgbouncer，使用连接池管理；</li>
 </ul>
-<h4 id="heading10">高可用支持</h4>
+<h4 id="高可用支持">高可用支持</h4>
 <ul>
 <li>当前从节点仅仅做了数据备份，实际故障时，还无法进行自动切换。引入pgpool，对故障迁移等进行支持；</li>
 </ul>
-<h3 id="heading11">关键配置</h3>
+<h3 id="关键配置">关键配置</h3>
 <ul>
 <li>shared_buffers：使用默认值128MB</li>
 <li>work_mem：使用默认值4MB</li>
@@ -142,19 +142,19 @@
 <li>max_connections：1500</li>
 <li>superuser_reserved_connections：使用默认值3</li>
 </ul>
-<h3 id="heading12">慢请求优化</h3>
-<h4 id="explain">EXPLAIN命令</h4>
+<h3 id="慢请求优化">慢请求优化</h3>
+<h4 id="explain命令">EXPLAIN命令</h4>
 <p>执行explain (query text)或explain (buffers true, analyze true, verbose true) (query text)命令，查看SQL的执行计划（注意，前者不会实际执行SQL，后者会实际执行而且能得到详细的执行信息），对其中的Table Scan涉及的表，建立索引。</p>
 <pre><code>explain (analyze,verbose,costs,buffers,timing,summary) SELECT (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;name&quot;, &quot;cluster&quot;, &quot;enabled&quot;, &quot;consumer_id&quot;, &quot;api_id&quot;, &quot;group_id&quot; FROM plugins;
 </code></pre><pre><code>explain (analyze,verbose,costs,buffers,timing,summary) SELECT &quot;enabled&quot;, (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;group_id&quot;, &quot;name&quot;, &quot;api_id&quot;, &quot;consumer_id&quot; FROM plugins;
-</code></pre><h4 id="pgsqllog-statement">调整pgsql的log statement输出</h4>
+</code></pre><h4 id="调整pgsql的log-statement输出">调整pgsql的log statement输出</h4>
 <pre><code>2019-11-21 16:24:16.715 CST [16911] LOG:  statement: SELECT (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;name&quot;, &quot;cluster_name&quot;, &quot;enabled&quot;, &quot;consumer_id&quot;, &quot;api_i
 d&quot;, &quot;group_id&quot; FROM plugins
 2019-11-21 16:24:43.546 CST [16911] LOG:  duration: 26831.257 ms
 </code></pre><pre><code>2019-11-21 16:30:59.129 CST [17490] LOG:  statement: SELECT &quot;enabled&quot;, (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;group_id&quot;, &quot;name&quot;, &quot;api_id&quot;, &quot;consumer_
 id&quot; FROM plugins
 2019-11-21 16:31:00.340 CST [17490] LOG:  duration: 1211.576 ms
-</code></pre><h4 id="pgsql-log">调整pgsql log输出更具体信息</h4>
+</code></pre><h4 id="调整pgsql-log输出更具体信息">调整pgsql log输出更具体信息</h4>
 <p>分析时间损耗点，在elapsed</p>
 <pre><code>2019-11-21 20:41:57.408 CST [6409] LOG:  00000: EXECUTOR STATISTICS
 2019-11-21 20:41:57.408 CST [6409] DETAIL:  ! system usage stats:
@@ -180,7 +180,7 @@ OM plugins
 2019-11-21 20:44:00.733 CST [6549] STATEMENT:  SELECT (extract(epoch from created_at)*1000)::bigint as created_at, &quot;config&quot;, &quot;id&quot;, &quot;name&quot;, &quot;cluster&quot;, &quot;enabled&quot;, &quot;consumer_id&quot;, &quot;api_id&quot;, &quot;g
 roup_id&quot; FROM plugins
 2019-11-21 20:44:00.733 CST [6549] LOG:  00000: duration: 22088.423 ms
-</code></pre><h4 id="elapsed">排查具体elapsed耗时</h4>
+</code></pre><h4 id="排查具体elapsed耗时">排查具体elapsed耗时</h4>
 <p>请求的处理，实际卡在ClientWrite事件，也就是数据回写操作上</p>
 <pre><code>SELECT * FROM pg_stat_activity WHERE wait_event IS NOT NULL AND backend_type = 'client backend';
 datid |   datname   | pid  | usesysid | usename  | application_name |  client_addr   | client_hostname | client_port |         backend_start         |          xact_start           |          query_start
@@ -193,22 +193,22 @@ datid |   datname   | pid  | usesysid | usename  | application_name |  client_ad
  2019-11-22 09:24:57.558639+08 | 2019-11-22 09:24:57.562216+08 | 2019-11-22 09:24:57.562216+08 | 2019-11-22 09:24:57.562223+08 
  | Client          | ClientWrite | active |             |      7968336 | 
  SELECT &quot;cluster_name&quot;, &quot;config&quot;, &quot;id&quot;, &quot;name&quot;, &quot;enabled&quot;, &quot;consumer_id&quot;, (extract(epoch from created_at)*1000)::bigint as created_at, &quot;api_id&quot;, &quot;group_id&quot; FROM plugins | client backend
-</code></pre><h4 id="pgstatstatements">pg_stat_statements插件</h4>
+</code></pre><h4 id="pg_stat_statements插件">pg_stat_statements插件</h4>
 <p>定位慢SQL</p>
-<h4 id="pgstatactivity">pg_stat_activity</h4>
+<h4 id="pg_stat_activity">pg_stat_activity</h4>
 <p>查看当前长时间执行，一直不结束的SQL</p>
-<h3 id="heading13">问题汇总</h3>
+<h3 id="问题汇总">问题汇总</h3>
 <ul>
 <li>连接数耗尽<br>
 FATAL: remaining connection slots are reserved for non-replication superuser connections</li>
 </ul>
-<h3 id="heading14">注意事项</h3>
+<h3 id="注意事项">注意事项</h3>
 <ul>
 <li>连接数约多，占用的内存越大，单个连接占用内存：work_mem(该大小会影响查询效率)，因此总内存占用为：connections * work_mem</li>
 </ul>
-<h3 id="heading15">参考</h3>
+<h3 id="参考">参考</h3>
 <p><a href="https://www.cybertec-postgresql.com/en/tuning-max_connections-in-postgresql/">https://www.cybertec-postgresql.com/en/tuning-max_connections-in-postgresql/</a>
-<a href="https://wiki.postgresql.org/wiki/Replication">https://wiki.postgresql.org/wiki/Replication</a>,_Clustering,_and_Connection_Pooling
+<a href="https://wiki.postgresql.org/wiki/Replication,_Clustering,_and_Connection_Pooling">https://wiki.postgresql.org/wiki/Replication,_Clustering,_and_Connection_Pooling</a>
 <a href="https://girders.org/2012/09/scaling-postgresql-with-pgpool-and-pgbouncer.html">https://girders.org/2012/09/scaling-postgresql-with-pgpool-and-pgbouncer.html</a>
 <a href="https://blog.pythian.com/comparing-pgpool-ii-and-pgbouncer/">https://blog.pythian.com/comparing-pgpool-ii-and-pgbouncer/</a></p>
 
@@ -280,7 +280,19 @@ FATAL: remaining connection slots are reserved for non-replication superuser con
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-3-20-waerdenghu/" title="瓦尔登湖">瓦尔登湖</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-20-bainiangudu/" title="百年孤独">百年孤独</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-renjianshige/" title="人间失格">人间失格</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-zenandart/" title="禅与摩托车维修艺术">禅与摩托车维修艺术</a>
     </li>
     
     <li>
@@ -307,18 +319,6 @@ FATAL: remaining connection slots are reserved for non-replication superuser con
         <a href="https://www.yangwenchao.com/post/life/2020/2020-12-28-xizuo/" title="戏作">戏作</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-nandubeigui3/" title="南渡北归三">南渡北归三</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-jingangchuan/" title="金刚川">金刚川</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-taoanmengyi/" title="陶庵梦忆">陶庵梦忆</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -330,7 +330,7 @@ FATAL: remaining connection slots are reserved for non-replication superuser con
     
     <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
-    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (84)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (87)</a></li>
     
 </ul>
     </section>

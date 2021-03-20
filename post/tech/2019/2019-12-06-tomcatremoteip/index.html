@@ -3,7 +3,7 @@
 <head>
 
     <meta charset="utf-8">
-    <meta name="generator" content="Hugo 0.60.1" />
+    <meta name="generator" content="Hugo 0.68.3" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -91,10 +91,10 @@
                         
                         
                         <div class="post-content">
-                            <h3 id="heading">背景</h3>
+                            <h3 id="背景">背景</h3>
 <p>日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！<br>
 在实际业务中，遇到XFF头无法取到，但是实际RemoteAddr又能正常获取到客户端的情形！</p>
-<h3 id="heading1">分析</h3>
+<h3 id="分析">分析</h3>
 <ul>
 <li>
 <p>具体表现</p>
@@ -111,7 +111,7 @@
 </ul>
 </li>
 </ul>
-<h3 id="tomcat">tomcat分析</h3>
+<h3 id="tomcat分析">tomcat分析</h3>
 <ul>
 <li>1，查看server.xml，有如下配置：</li>
 </ul>
@@ -135,10 +135,10 @@ protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;http
 </ul>
 </li>
 </ul>
-<h3 id="spring">spring分析</h3>
+<h3 id="spring分析">spring分析</h3>
 <p><img src="/assets/images/2019/tech/remoteip3.png" alt="pic">
 尚未遇到该问题，暂且做记录。</p>
-<h3 id="heading2">综述</h3>
+<h3 id="综述">综述</h3>
 <p>IP的传递本身是一个比较基础的功能项，业务感知度不高，但是Nginx，Tomcat，Spring中都会有专门的模块进行分析处理。<br>
 需要前期进行规范统一，否则容易导致IP的误取，误判！<br>
 而实际业务使用过程中，很多是不知道底层具体实现，而采取了巧合编程，一旦出现问题，则会一头雾水！在此简略说明之。</p>
@@ -211,7 +211,19 @@ protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;http
 <ul class="widget-list">
     
     <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-3-20-waerdenghu/" title="瓦尔登湖">瓦尔登湖</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-20-bainiangudu/" title="百年孤独">百年孤独</a>
+    </li>
+    
+    <li>
         <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-renjianshige/" title="人间失格">人间失格</a>
+    </li>
+    
+    <li>
+        <a href="https://www.yangwenchao.com/post/life/2021/2021-03-06-zenandart/" title="禅与摩托车维修艺术">禅与摩托车维修艺术</a>
     </li>
     
     <li>
@@ -238,18 +250,6 @@ protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;http
         <a href="https://www.yangwenchao.com/post/life/2020/2020-12-28-xizuo/" title="戏作">戏作</a>
     </li>
     
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-nandubeigui3/" title="南渡北归三">南渡北归三</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-jingangchuan/" title="金刚川">金刚川</a>
-    </li>
-    
-    <li>
-        <a href="https://www.yangwenchao.com/post/life/2020/2020-12-12-taoanmengyi/" title="陶庵梦忆">陶庵梦忆</a>
-    </li>
-    
 </ul>
     </section>
 
@@ -261,7 +261,7 @@ protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;http
     
     <li><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF/">技术 (10)</a></li>
     
-    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (84)</a></li>
+    <li><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB/">生活 (87)</a></li>
     
 </ul>
     </section>
