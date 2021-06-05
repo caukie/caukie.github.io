@@ -7,20 +7,20 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Tomcat RemoteIP分析 | cake918小屋</title>
-    <meta property="og:title" content="Tomcat RemoteIP分析 - cake918小屋">
+    <title>无题 | cake918小屋</title>
+    <meta property="og:title" content="无题 - cake918小屋">
     <meta property="og:type" content="article">
         
-    <meta property="article:published_time" content="2019-12-06T00:00:00&#43;08:00">
+    <meta property="article:published_time" content="2020-06-05T00:00:00&#43;08:00">
         
         
-    <meta property="article:modified_time" content="2019-12-06T00:00:00&#43;08:00">
+    <meta property="article:modified_time" content="2020-06-05T00:00:00&#43;08:00">
         
     <meta name="Keywords" content="生活，技术">
-    <meta name="description" content="Tomcat RemoteIP分析">
+    <meta name="description" content="无题">
         
     <meta name="author" content="杨文超">
-    <meta property="og:url" content="https://www.yangwenchao.com/post/tech/2019/2019-12-06-tomcatremoteip/">
+    <meta property="og:url" content="https://www.yangwenchao.com/post/life/2021/2020-06-05-wuti/">
     <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon">
 
     <link rel="stylesheet" href="/css/normalize.css">
@@ -70,78 +70,32 @@
                 <div class="res-cons">
                     <article class="post">
                         <header>
-                            <h1 class="post-title">Tomcat RemoteIP分析</h1>
+                            <h1 class="post-title">无题</h1>
                         </header>
                         <date class="post-meta meta-date">
-                            2019年12月6日
+                            2020年6月5日
                         </date>
                         
                         <div class="post-meta">
                             <span>|</span>
                             
-                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E6%8A%80%E6%9C%AF">技术</a></span>
+                                <span class="meta-category"><a href="https://www.yangwenchao.com/categories/%E7%94%9F%E6%B4%BB">生活</a></span>
                             
                         </div>
                         
                         
                         <div class="post-meta">
                             <span id="busuanzi_container_page_pv">|<span id="busuanzi_value_page_pv"></span><span>
-                                    阅读 </span></span>|<span class="post-date">共794字</span>，阅读约<span class="more-meta"> 2 分钟</span>
+                                    阅读 </span></span>|<span class="post-date">共66字</span>，阅读约<span class="more-meta"> 1 分钟</span>
                         </div>
                         
                         
                         <div class="post-content">
-                            <h3 id="背景">背景</h3>
-<p>日常应用中，会有使用到RemoteIP，以及X-Forwarded-For头的场景，典型的IP黑白名单校验！<br>
-在实际业务中，遇到XFF头无法取到，但是实际RemoteAddr又能正常获取到客户端的情形！</p>
-<h3 id="分析">分析</h3>
-<ul>
-<li>
-<p>具体表现</p>
-<ul>
-<li>tomcat access日志可以正常输出XFF头，说明该请求头是正常传入的；</li>
-<li>应用调用httpRequest.getHeader(&ldquo;X-Forwarded-For&rdquo;)，返回内容为空；</li>
-</ul>
-</li>
-<li>
-<p>疑点</p>
-<ul>
-<li>tomcat对header做了处理；</li>
-<li>spring对header做了处理；</li>
-</ul>
-</li>
-</ul>
-<h3 id="tomcat分析">tomcat分析</h3>
-<ul>
-<li>1，查看server.xml，有如下配置：</li>
-</ul>
-<pre><code>&lt;Valve className=&quot;org.apache.catalina.valves.RemoteIpValve&quot; remoteIpHeader=&quot;X-Forwarded-For&quot;
-protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;https&quot;/&gt;
-</code></pre><ul>
-<li>
-<p>2，查看tomcat文档：<br>
-<a href="https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIpValve.html">https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIpValve.html</a>
-<img src="/assets/images/2019/tech/remoteip1.png" alt="pic">
-其中提到会对remoteIpHeader中，命中了internal proxies的IP，进行swallow！
-根据配置此处remoteIpHeader，就是X-Forwarded-For！</p>
-</li>
-<li>
-<p>3， 进一步查看源码：<br>
-<img src="/assets/images/2019/tech/remoteip2.png" alt="pic"></p>
-<ul>
-<li>1，此处先对remoteip进行查找（==remoteIpHeader中首个非internal，非trusted的IP==），并更新至remoteAddr；</li>
-<li>2，将剩余的remoteIpHeader中的IP进行重新构建，并更新至remoteIpHeader。
-至此可以明确，一旦增加了RemoteIpValve配置，则同时会对RemoteAddr，X-Forwarded-For头产生影响。同时，对其他的header和属性也会有影响，具体影响的内容可以参考<a href="https://tomcat.apache.org/tomcat-8.5-doc/api/org/apache/catalina/valves/RemoteIpValve.html">官方文档</a>。</li>
-</ul>
-</li>
-</ul>
-<h3 id="spring分析">spring分析</h3>
-<p><img src="/assets/images/2019/tech/remoteip3.png" alt="pic">
-尚未遇到该问题，暂且做记录。</p>
-<h3 id="综述">综述</h3>
-<p>IP的传递本身是一个比较基础的功能项，业务感知度不高，但是Nginx，Tomcat，Spring中都会有专门的模块进行分析处理。<br>
-需要前期进行规范统一，否则容易导致IP的误取，误判！<br>
-而实际业务使用过程中，很多是不知道底层具体实现，而采取了巧合编程，一旦出现问题，则会一头雾水！在此简略说明之。</p>
+                            <p><strong><center>无题</center></strong></p>
+<p><strong><center>细雨阑珊落红瘦，微风缱绻碧波愁。</center></strong>
+<strong><center>惯闻旧交择良木，闲看梁燕入旧楼。</center></strong></p>
+<p><strong><center>无技踏歌勤折柳，不胜酒力强出头。</center></strong>
+<strong><center>江山万里同明月，峰竦渊澄各风流。</center></strong></p>
 
                         </div>                      
 
@@ -154,15 +108,15 @@ protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;http
     <h2>See Also</h2>
     <ul class="listing">
         
-        <li><a href="/post/tech/2019/2019-10-08-nginxrealip/">Nginx RealIP分析</a></li>
+        <li><a href="/post/life/2020/2020-03-31-guiyu/">鬼语</a></li>
         
-        <li><a href="/post/tech/2019/2019-01-07-fengkong2/">严选风控进阶之路-吹尽狂沙始到金</a></li>
+        <li><a href="/post/life/2020/2020-01-20-wubing/">无病</a></li>
         
-        <li><a href="/post/tech/2018/2018-12-25-wangguan1/">严选API网关构建实践</a></li>
+        <li><a href="/post/life/2020/2020-01-13-wuti/">无题</a></li>
         
-        <li><a href="/post/tech/2018/2018-01-24-fengkong1/">严选风控构建之路 --雄关漫道真如铁</a></li>
+        <li><a href="/post/life/2020/2020-01-13-wuti1/">无题</a></li>
         
-        <li><a href="/post/life/2019/2019-11-28-wuti/">无题</a></li>
+        <li><a href="/post/life/2020/2020-01-07-wuti/">无题</a></li>
         
     </ul>
 </div>
@@ -172,7 +126,7 @@ protocolHeader=&quot;X-Forwarded-Proto&quot; protocolHeaderHttpsValue=&quot;http
                             
                             <ul class="clearfix">
                                 
-                                <li><a href="https://www.yangwenchao.com/tags/%E6%8A%80%E6%9C%AF">技术</a></li>
+                                <li><a href="https://www.yangwenchao.com/tags/%E5%81%B6%E6%84%9F">偶感</a></li>
                                 
                             </ul>
                             
